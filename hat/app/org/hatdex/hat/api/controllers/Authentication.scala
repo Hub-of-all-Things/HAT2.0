@@ -91,7 +91,9 @@ class Authentication @Inject() (
   // * Error Responses *
   // Extracted as these messages increased the length of functions.
   // So as a small effort to increase readability, I pulled them out.
-  private def unauthorizedMessage(title: String, body: String) =
+  private def unauthorizedMessage(
+      title: String,
+      body: String) =
     Unauthorized(Json.toJson(ErrorMessage(s"${title}", s"${body}")))
 
   val noUserMatchingToken =
@@ -494,7 +496,16 @@ class Authentication @Inject() (
                         )
                         Done
                     }
-                  mailer.passwordChanged(token.email)
+
+                  // DSE-773
+                  // TODO:
+                  // Application ID, can this be empty?
+                  // RedirectUrl, what should this be?
+                  val emailVerificationOptions =
+                    EmailVerificationOptions(user.email, language, "", "")
+                  val verificationLink = emailVerificationLink(request.host, token.id, emailVerificationOptions)
+                  mailer.verifyEmail(user.email, verificationLink)
+
                   result
                 }
                 // ???: this is fishy
@@ -546,7 +557,10 @@ class Authentication @Inject() (
     * The function ensures there is a valid token to be returned to the client
     */
 
-  private def ensureValidToken(email: String, isSignup: Boolean)(implicit hatServer: HatServer): Future[MailTokenUser] =
+  private def ensureValidToken(
+      email: String,
+      isSignup: Boolean
+    )(implicit hatServer: HatServer): Future[MailTokenUser] =
     tokenService.retrieve(email, isSignup).flatMap {
       case Some(token) if token.isExpired =>
         // TODO: log event for audit purpose
@@ -586,7 +600,9 @@ class Authentication @Inject() (
   //   rolesRequired.map(roleRequired => )
   // }
 
-  def roleMatchIt(roleToMatch: UserRole, roleRequired: UserRole): Boolean =
+  def roleMatchIt(
+      roleToMatch: UserRole,
+      roleRequired: UserRole): Boolean =
     roleRequired equals roleToMatch
   // roleToMatch match {
   //   case roleRequired: EmailVerified => true
