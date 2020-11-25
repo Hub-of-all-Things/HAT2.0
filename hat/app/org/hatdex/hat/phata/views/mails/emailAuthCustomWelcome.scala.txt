@@ -1,0 +1,43 @@
+@import play.api.i18n.{ Lang, MessagesApi }
+
+@(email: String, appName: Option[String], appLogo: Option[String], startHereLink: String)(implicit messagesApi: MessagesApi, language: Lang)
+
+@messagesApi("email.dataswift.auth.welcome.to.pda", appName.getOrElse(""))
+
+@messagesApi("email.dataswift.auth.hi"),
+
+@messagesApi("email.dataswift.auth.pda.was.created", email)
+
+====================
+
+@appLogo
+
+@messagesApi("email.dataswift.auth.go.to.app", appName.getOrElse(""))
+
+====================
+
+@messagesApi("email.hatClaim.safePlace.title")
+
+@messagesApi("email.hatClaim.safePlace.description")
+
+====================
+
+@messagesApi("email.hatClaim.activateYourAccount", appName.getOrElse(""))
+
+@startHereLink
+
+@messagesApi("email.dataswift.auth.start.here")
+
+====================
+
+@messagesApi("email.welcome.issuedBy")
+
+====================
+
+@messagesApi("email.dataswift.auth.footer.copyrights")
+
+@messagesApi("email.dataswift.auth.footer.authorised.by")
+
+@messagesApi("email.dataswift.auth.footer.hat.community.foundation")
+
+@messagesApi("email.dataswift.auth.footer.financial.conduct.authority")

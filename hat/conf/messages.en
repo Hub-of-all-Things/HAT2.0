@@ -60,3 +60,17 @@ email.dataswift.auth.footer.financial.conduct.authority=and Financial Conduct Au
 email.dataswift.auth.reset.password.title=Password Reset
 email.dataswift.auth.reset.password.follow.link=To reset your password, follow this link:
 email.dataswift.auth.reset.password.link=Reset Password
+
+email.dataswift.auth.password.updated=Password Updated
+
+email.dataswift.auth.welcome.to.pda={0} welcomes you to your Personal Data Account
+email.dataswift.auth.pda.was.created=A Personal Data Account using this email address, [{0}] has been created for you on behalf of
+email.dataswift.auth.go.to.app=Go to {0}
+
+email.dataswift.auth.safe.place=A safe place for your data
+email.dataswift.auth.safely.legally.store=Your Personal Data Account is where you can safely store and legally own all the data within.
+
+email.dataswift.auth.activate.text=Activate your account to continue using {0} and to discover other apps you can use with your PDA.
+email.dataswift.auth.start.here=Start Here
+
+email.dataswift.auth.issued.by=Your PDA was issued by

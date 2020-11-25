@@ -49,3 +49,17 @@ email.dataswift.auth.footer.financial.conduct.authority=e pela Financial Conduct
 email.dataswift.auth.reset.password.title=Redefinição de senha
 email.dataswift.auth.reset.password.follow.link=Para redefinir sua senha, siga este link:
 email.dataswift.auth.reset.password.link=Redefinir senha
+
+email.dataswift.auth.password.updated=Senha atualizada
+
+email.dataswift.auth.welcome.to.pda={0} recebe você em sua Personal Data Account
+email.dataswift.auth.pda.was.created=Uma conta de dados pessoais da Dataswift usando este endereço de e-mail, [{0}] foi criada para você em nome de
+email.dataswift.auth.go.to.app=Vá para {0}
+
+email.dataswift.auth.safe.place=Um local seguro para seus dados
+email.dataswift.auth.safely.legally.store=Sua Personal Data Account é onde você pode armazenar com segurança e possuir legalmente todos os dados.
+
+email.dataswift.auth.activate.text=Ative sua conta para continuar usando o {0} e descobrir outros aplicativos que você pode usar com seu PDA.
+email.dataswift.auth.start.here=Comece Aqui
+
+email.dataswift.auth.issued.by=Publicado por:
