@@ -50,7 +50,7 @@ class HatServerProviderActor @Inject() (
   import HatServerProviderActor._
 
   private val activeServers = mutable.HashMap[String, ActorRef]()
-  private implicit val hatServerTimeout: Timeout =
+  implicit private val hatServerTimeout: Timeout =
     configuration.get[FiniteDuration](
       "resourceManagement.serverProvisioningTimeout"
     )
@@ -67,6 +67,14 @@ class HatServerProviderActor @Inject() (
       } onComplete {
         case Success(_) => ()
         case Failure(e) =>
+          /* DAS-117 - We are seeing duplicate names for actors.
+          The nature of the behaviour here is we associate a HAT user to a HatServerProviderActor ActorRef which then manages the further interactions.
+          Given the naming of the actor here is "hat:<fully-qualified-domain>" the function below, `findOrCreate` should work as expected,
+          either finding an existing actor, or creating a new one in the `activeServers` HashMap.
+
+          A potential scenario is the actor is created, and is active in the `activeServers` lookup, but in between the first creation and the next lookup,
+          that actor has become dormant, or has crashed.
+           */
           log.warn(
             s"Error while getting HAT server provider actor: ${e.getMessage}"
           )
@@ -83,15 +91,23 @@ class HatServerProviderActor @Inject() (
   }
 
   private def getHatServerActor(hat: String): Future[ActorRef] = {
+    log.debug("")
     doFindOrCreate(hat, hatServerTimeout.duration / 4)
   }
+
+  /*
+  [WARN ] [01/12/2021 09:31:42] [o.h.h.r.a.HatServerProviderActor] Error while getting HAT server provider actor: actor name [hat:steveashby.hubofallthings.net] is not unique!
+  [INFO ] [01/12/2021 09:31:42] [api] [77.103.220.124] [GET:steveashby.hubofallthings.net:/users/access_token] [401] [485:ms] [hats:1] [unauthenticated@_]
+  [WARN ] [01/12/2021 09:31:47] [o.h.h.r.HatServerProviderImpl] Error while retrieving HAT steveashby.hubofallthings.net info: Ask timed out on [Actor[akka://application/user/hatServerProviderActor#1759568681]] after [5000 ms]. Message of type [org.hatdex.hat.resourceManagement.actors.HatServerProviderActor$HatServerRetrieve]. A typical reason for `AskTimeoutException` is that the recipient actor didn't send a reply.
+  [INFO ] [01/12/2021 09:31:47] [api] [77.103.220.124] [GET:steveashby.hubofallthings.net:/users/access_token] [404] [5017:ms] [hats:1] [unauthenticated@_]
+  [INFO ] [01/12/2021 09:32:01] [api] [77.103.220.124] [POST:steveashby.hubofallthings.net:/control/v2/auth/passwordReset] [200] [2:ms] [hats:1] [unauthenticated@_]
+   */
 
   private val maxAttempts = 3
   private def doFindOrCreate(
       hat: String,
       timeout: FiniteDuration,
-      depth: Int = 0
-    ): Future[ActorRef] = {
+      depth: Int = 0): Future[ActorRef] = {
     if (depth >= maxAttempts) {
       log.error(s"HAT server actor for $hat not resolved")
       throw new RuntimeException(
@@ -100,18 +116,16 @@ class HatServerProviderActor @Inject() (
     }
     val selection = s"/user/hatServerProviderActor/hat:$hat"
 
-    context.actorSelection(selection).resolveOne(timeout) map {
-      hatServerActor =>
-        log.debug(s"HAT server actor $selection resolved")
-        hatServerActor
+    context.actorSelection(selection).resolveOne(timeout) map { hatServerActor =>
+      log.debug(s"HAT server actor $selection resolved")
+      hatServerActor
     } recoverWith {
       case ActorNotFound(_) =>
         log.debug(s"HAT server actor ($selection) not found, injecting child")
         val hatServerActor = injectedChild(
           hatServerActorFactory(hat),
           s"hat:$hat",
-          props = (props: Props) =>
-            props.withDispatcher("hat-server-provider-actor-dispatcher")
+          props = (props: Props) => props.withDispatcher("hat-server-provider-actor-dispatcher")
         )
         activeServers(hat) = hatServerActor
         log.debug(s"Injected actor $hatServerActor")
