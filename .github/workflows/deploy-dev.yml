@@ -9,7 +9,7 @@ on:
 
 env:
   APP_ENV: prod
-  RUMPEL: latest
+  RUMPEL: 4.2.5
   RUMPEL_BUCKET: dswift-hat-sandbox-frontend-build-artifacts
   REPOSITORY: dataswift/hat
 
