@@ -38,12 +38,13 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEPLOYER_SANDBOX_SECRET_ACCESS_KEY }}
         run: |
           cd ./hat/app/org/hatdex/hat/phata/assets/
-          aws s3 cp s3://${{ env.RUMPEL_BUCKET }}/latest rumpel --recursive
-          cp rumpel/*.js* js/
-          cp rumpel/*.css stylesheets/
+          aws s3 cp s3://${{ env.RUMPEL_BUCKET }}/${{ env.RUMPEL_ALT }} alt-rumpel --recursive
+          cp alt-rumpel/*.js* js/
+          cp alt-rumpel/*.css stylesheets/
           gzip --keep --force js/*.bundle.js
-          cp -r rumpel/assets/* .
-          rm -r rumpel
+          cp -r alt-rumpel/assets/* .
+          cp -r alt-rumpel/* .
+          rm -r alt-rumpel
           cd -
 
       - name: Build
