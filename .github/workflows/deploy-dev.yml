@@ -39,7 +39,6 @@ jobs:
           cd ./hat/app/org/hatdex/hat/phata/assets/
           aws s3 cp s3://${{ env.RUMPEL_BUCKET }}/${{ env.RUMPEL }} rumpel --recursive
           cp rumpel/*.js* js/
-          cp rumpel/*.css stylesheets/
           gzip --keep --force js/*.bundle.js
           cp -r rumpel/assets/* .
           rm -r rumpel
