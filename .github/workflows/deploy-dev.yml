@@ -18,7 +18,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    timeout-minutes: 11
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -38,15 +38,12 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEPLOYER_SANDBOX_SECRET_ACCESS_KEY }}
         run: |
           cd ./hat/app/org/hatdex/hat/phata/assets/
-          aws s3 cp s3://${{ env.RUMPEL_BUCKET }}/${{ env.RUMPEL }} rumpel --recursive
-          aws s3 cp s3://${{ env.RUMPEL_BUCKET }}/${{ env.RUMPEL_ALT }} alt-rumpel --recursive
+          aws s3 cp s3://${{ env.RUMPEL_BUCKET }}/latest rumpel --recursive
           cp rumpel/*.js* js/
           cp rumpel/*.css stylesheets/
           gzip --keep --force js/*.bundle.js
           cp -r rumpel/assets/* .
-          cp -r alt-rumpel/* .
           rm -r rumpel
-          rm -r alt-rumpel
           cd -
 
       - name: Build
