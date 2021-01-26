@@ -11,7 +11,7 @@ env:
   APP_ENV: prod
   RUMPEL: sandbox
   RUMPEL_ALT: latest
-  RUMPEL_BUCKET: dswift-hat-stage-frontend-build-artifacts
+  RUMPEL_BUCKET: dswift-hat-sandbox-frontend-build-artifacts
   REPOSITORY: dataswift/hat
 
 jobs:
