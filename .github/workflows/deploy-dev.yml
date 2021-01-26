@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - dev
+      - DSE-175-testing
 
 env:
   APP_ENV: prod
