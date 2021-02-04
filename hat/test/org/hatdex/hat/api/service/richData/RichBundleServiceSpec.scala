@@ -180,53 +180,47 @@ class RichBundleServiceSpec extends AnyFlatSpec with Matchers with RichBundleSer
     r should not be 'defined
   }
 
-  // "The `combinators` method" should "List all combinators" in {
-  //     val service = application.injector.instanceOf[RichBundleService]
-  //     val saved = for {
-  //       _ <- service.saveCombinator("testCombinator", testEndpointQuery)
-  //       _ <- service.saveCombinator("testCombinator2", testEndpointQueryUpdated)
-  //       combinators <- service.combinators()
-  //     } yield combinators
+  "The `combinators` method" should "List all combinators" in {
+    val service = application.injector.instanceOf[RichBundleService]
+    val saved = for {
+      _ <- service.saveCombinator("testCombinator", testEndpointQuery)
+      _ <- service.saveCombinator("testCombinator2", testEndpointQueryUpdated)
+      combinators <- service.combinators()
+    } yield combinators
 
-  //     saved map { r =>
-  //       r.length must equalTo(2)
-  //     } await (3, 10.seconds)
-  //   }
+    val r = Await.result(saved, 10.seconds)
+    r.length should equal(2)
+  }
 
-  // "The `deleteCombinator` method" should "Delete combinator by ID" in {
-  //     val service = application.injector.instanceOf[RichBundleService]
-  //     val saved = for {
-  //       _ <- service.saveCombinator("testCombinator", testEndpointQuery)
-  //       _ <- service.saveCombinator("testCombinator2", testEndpointQueryUpdated)
-  //       _ <- service.deleteCombinator("testCombinator")
-  //       combinators <- service.combinators()
-  //     } yield combinators
+  "The `deleteCombinator` method" should "Delete combinator by ID" in {
+    val service = application.injector.instanceOf[RichBundleService]
+    val saved = for {
+      _ <- service.saveCombinator("testCombinator", testEndpointQuery)
+      _ <- service.saveCombinator("testCombinator2", testEndpointQueryUpdated)
+      _ <- service.deleteCombinator("testCombinator")
+      combinators <- service.combinators()
+    } yield combinators
 
-  //     saved map { r =>
-  //       r.length must equalTo(1)
-  //       r.head._1 must equalTo("testCombinator2")
-  //     } await (3, 10.seconds)
-  //   }
+    val r = Await.result(saved, 10.seconds)
+    r.length should equal(1)
+    r.head._1 should equal("testCombinator2")
+  }
 
-  // "The `saveBundle` method" should "Save a bundle" in {
-  //     val service = application.injector.instanceOf[RichBundleService]
-  //     val saved   = service.saveBundle(testBundle)
-  //     saved map { _ =>
-  //       true must beTrue
-  //     } await (3, 10.seconds)
+  "The `saveBundle` method" should "Save a bundle" in {
+    val service = application.injector.instanceOf[RichBundleService]
+    val saved   = service.saveBundle(testBundle)
+    Await.result(saved, 10.seconds)
+  }
 
-  //   "Update a bundle if one already exists" in {
-  //     val service = application.injector.instanceOf[RichBundleService]
-  //     val saved = for {
-  //       _ <- service.saveBundle(testBundle)
-  //       saved <- service.saveBundle(testBundle)
-  //     } yield saved
+  it should "Update a bundle if one already exists" in {
+    val service = application.injector.instanceOf[RichBundleService]
+    val saved = for {
+      _ <- service.saveBundle(testBundle)
+      saved <- service.saveBundle(testBundle)
+    } yield saved
 
-  //     saved map { _ =>
-  //       true must beTrue
-  //     } await (3, 10.seconds)
-  //   }
-  // }
+    Await.result(saved, 10.seconds)
+  }
 
   // "The `bundle` method" should "Retrieve a bundle by ID" in {
   //     val service = application.injector.instanceOf[RichBundleService]
