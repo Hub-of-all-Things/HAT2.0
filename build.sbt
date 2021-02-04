@@ -57,7 +57,10 @@ lazy val hat = project
                   Library.Specs2.core,
                   Library.Specs2.matcherExtra,
                   Library.Specs2.mock,
-                  Library.Play.Silhouette.silhouetteTestkit
+                  Library.Play.Silhouette.silhouetteTestkit,
+                  Library.Test.core,
+                  Library.TestContainers.postgresql,
+                  Library.TestContainers.scalaTest
                 )
           case BuildEnv.Stage | BuildEnv.Production =>
             libraryDependencies.value.map(excludeSpecs2)
@@ -86,7 +89,6 @@ lazy val hat = project
     // as Bash is incompatible with Alpine
     javaOptions in Universal ++= Seq(),
     packageName in Docker := "hat",
-    maintainer in Docker := "andrius.aucinas@hatdex.org",
     version in Docker := version.value,
     //dockerBaseImage := "adoptopenjdk/openjdk11:jre-11.0.7_10-alpine",
     dockerExposedPorts := Seq(9000),
@@ -164,3 +166,5 @@ unmanagedSources.in(Compile, scalafix) :=
     .in(Compile)
     .value
     .filterNot(file => file.getName == "Tables.scala")
+
+Test / fork := true

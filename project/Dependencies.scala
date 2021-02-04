@@ -43,6 +43,18 @@ object Dependencies {
 
   object Library {
 
+    object Version {
+      val Slf4jApi            = "1.7.30"
+      val Sourcecode          = "0.2.3"
+      val Jna                 = "5.6.0"
+      val ScalaXml            = "1.3.0"
+      val ScalaCheck          = "1.15.2"
+      val Enumeratum          = "1.6.1"
+      val ScalaTest           = "3.2.3"
+      val TestContainersScala = "0.38.8"
+      val ScalaMock           = "5.0.0"
+    }
+
     object Play {
       val version     = play.core.PlayVersion.current
       val ws          = "com.typesafe.play" %% "play-ws"           % version
@@ -111,6 +123,15 @@ object Dependencies {
 
     object Prometheus {
       val filters = "com.github.stijndehaes" %% "play-prometheus-filters" % "0.4.0"
+    }
+
+    object Test {
+      val core = "org.scalatest" %% "scalatest" % Version.ScalaTest
+    }
+
+    object TestContainers {
+      val scalaTest  = "com.dimafeng" %% "testcontainers-scala-scalatest"  % Version.TestContainersScala
+      val postgresql = "com.dimafeng" %% "testcontainers-scala-postgresql" % Version.TestContainersScala
     }
 
   }
