@@ -25,12 +25,8 @@
 package org.hatdex.hat.api.service.richData
 
 import org.hatdex.hat.api.models._
-// import org.specs2.concurrent.ExecutionEnv
-// import org.specs2.mock.Mockito
-// import org.specs2.specification.{ BeforeAll, BeforeEach }
 import play.api.Logger
 import play.api.libs.json.{ JsObject, Json }
-//import play.api.test.PlaySpecification
 import org.hatdex.libs.dal.HATPostgresProfile.backend.Database
 
 import org.scalatest._
@@ -44,21 +40,25 @@ import play.api.Configuration
 import org.hatdex.hat.resourceManagement.{ FakeHatConfiguration, HatServer }
 import scala.concurrent.{ Await, Future }
 import com.atlassian.jwt.core.keys.KeyUtils
-import org.hatdex.hat.dal.HatDbSchemaMigration
 import java.io.StringReader
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{ Logger, Application => PlayApplication }
+import org.hatdex.hat.helpers.{ ContainerUtils }
 
-class RichBundleServiceSpec extends AnyFlatSpec with Matchers with RichBundleServiceContext with ForAllTestContainer {
+class RichBundleServiceSpec
+    extends AnyFlatSpec
+    with Matchers
+    with RichBundleServiceContext
+    with ContainerUtils
+    with ForAllTestContainer {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   override val container = PostgreSQLContainer()
   container.start()
 
-  val hatAddress = "hat.hubofallthings.net"
-  val logger     = Logger(this.getClass)
-
+  val hatAddress            = "hat.hubofallthings.net"
+  val logger                = Logger(this.getClass)
   private val configuration = Configuration.from(FakeHatConfiguration.config)
   private val keyUtils      = new KeyUtils()
   private val hatConfig     = configuration.get[Configuration](s"hat.$hatAddress")
@@ -83,65 +83,6 @@ class RichBundleServiceSpec extends AnyFlatSpec with Matchers with RichBundleSer
 
   val conf = containerToConfig(container)
   Await.result(databaseReady(db, conf), 60.seconds)
-
-  def containerToConfig(c: PostgreSQLContainer): Configuration =
-    Configuration.from(
-      Map(
-        "database" -> (
-              Map(
-                "dataSourceClass" -> "org.postgresql.ds.PGSimpleDataSource",
-                "properties" -> (Map("databaseName" -> c.container.getDatabaseName(),
-                                     "user" -> c.username,
-                                     "password" -> c.password,
-                                     "jdbcUrl" -> c.jdbcUrl
-                    )),
-                "serverName" -> c.container.getHost(),
-                "numThreads" -> 3,
-                "connectionPool" -> "disabled",
-                "jdbcUrl" -> c.jdbcUrl
-              )
-            )
-      )
-    )
-
-  def databaseReady(
-      db: Database,
-      c: Configuration): Future[Unit] = {
-    implicit def hatDatabase: Database = db
-
-    val schemaMigration = new HatDbSchemaMigration(c, hatDatabase, global)
-    schemaMigration
-      .resetDatabase()
-      .flatMap(_ =>
-        schemaMigration.run(
-          Seq(
-            "evolutions/hat-database-schema/11_hat.sql",
-            "evolutions/hat-database-schema/12_hatEvolutions.sql",
-            "evolutions/hat-database-schema/13_liveEvolutions.sql",
-            "evolutions/hat-database-schema/14_newHat.sql"
-          )
-        )
-      )
-  }
-
-  def cleanup(hatDatabase: Database): Unit = {
-    import org.hatdex.hat.dal.Tables._
-    import org.hatdex.libs.dal.HATPostgresProfile.api._
-
-    val endpointRecordsQuery = DataJson.filter(_.source.like("test%")).map(_.recordId)
-
-    val action = DBIO.seq(
-      DataDebitBundle.filter(_.bundleId.like("test%")).delete,
-      DataDebitContract.filter(_.dataDebitKey.like("test%")).delete,
-      DataCombinators.filter(_.combinatorId.like("test%")).delete,
-      DataBundles.filter(_.bundleId.like("test%")).delete,
-      DataJsonGroupRecords.filter(_.recordId in endpointRecordsQuery).delete,
-      DataJsonGroups.filterNot(g => g.groupId in DataJsonGroupRecords.map(_.groupId)).delete,
-      DataJson.filter(r => r.recordId in endpointRecordsQuery).delete
-    )
-
-    Await.result(hatDatabase.run(action), 60.seconds)
-  }
 
   "The `saveCombinator` method" should "Save a combinator" in {
     val service      = application.injector.instanceOf[RichBundleService]
@@ -290,21 +231,40 @@ trait RichBundleServiceContext {
                                      EndpointQuery("test/anothertest", None, None, None)
   )
 
-  val testBundle = EndpointDataBundle(
-    "testBundle",
-    Map(
-      "test" -> PropertyQuery(List(EndpointQuery("test/test", Some(simpleTransformation), None, None)),
-                              Some("data.newField"),
-                              None,
-                              Some(3)
-          ),
-      "complex" -> PropertyQuery(List(EndpointQuery("test/complex", Some(complexTransformation), None, None)),
+  def testBundleWithRandom(rnd: String): EndpointDataBundle =
+    EndpointDataBundle(
+      s"testBundle${rnd}",
+      Map(
+        s"test" -> PropertyQuery(List(EndpointQuery(s"test/test", Some(simpleTransformation), None, None)),
                                  Some("data.newField"),
                                  None,
-                                 Some(1)
-          )
+                                 Some(3)
+            ),
+        s"complex" -> PropertyQuery(
+              List(EndpointQuery(s"test/complex", Some(complexTransformation), None, None)),
+              Some("data.newField"),
+              None,
+              Some(1)
+            )
+      )
     )
-  )
+
+  val testBundle: EndpointDataBundle =
+    EndpointDataBundle(
+      "testBundle",
+      Map(
+        "test" -> PropertyQuery(List(EndpointQuery("test/test", Some(simpleTransformation), None, None)),
+                                Some("data.newField"),
+                                None,
+                                Some(3)
+            ),
+        "complex" -> PropertyQuery(List(EndpointQuery("test/complex", Some(complexTransformation), None, None)),
+                                   Some("data.newField"),
+                                   None,
+                                   Some(1)
+            )
+      )
+    )
 
   val testBundle2 = EndpointDataBundle(
     "testBundle2",
@@ -322,6 +282,23 @@ trait RichBundleServiceContext {
     )
   )
 
+  def newConditionsBundle(rnd: String) =
+    EndpointDataBundle(
+      s"testConditionsBundle${rnd}",
+      Map(
+        "test" -> PropertyQuery(List(EndpointQuery("test/test", Some(simpleTransformation), None, None)),
+                                Some("data.newField"),
+                                None,
+                                Some(3)
+            ),
+        "complex" -> PropertyQuery(List(EndpointQuery("test/complex", Some(complexTransformation), None, None)),
+                                   Some("data.newField"),
+                                   None,
+                                   Some(1)
+            )
+      )
+    )
+
   val conditionsBundle = EndpointDataBundle(
     "testConditionsBundle",
     Map(
@@ -337,6 +314,23 @@ trait RichBundleServiceContext {
           )
     )
   )
+
+  def newConditionsBundle2(rnd: String) =
+    EndpointDataBundle(
+      s"testConditionsBundle2${rnd}",
+      Map(
+        "test" -> PropertyQuery(List(EndpointQuery("test/test", Some(simpleTransformation), None, None)),
+                                Some("data.newField"),
+                                None,
+                                Some(3)
+            ),
+        "complex" -> PropertyQuery(List(EndpointQuery("test/anothertest", None, None, None)),
+                                   Some("data.newField"),
+                                   None,
+                                   Some(1)
+            )
+      )
+    )
 
   val conditionsBundle2 = EndpointDataBundle(
     "testConditionsBundle2",
