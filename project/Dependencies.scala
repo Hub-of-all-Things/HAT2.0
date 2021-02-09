@@ -89,7 +89,7 @@ object Dependencies {
     }
 
     object Specs2 {
-      private val version = "3.9.5"
+      private val version = "4.10.0"
       val core            = "org.specs2" %% "specs2-core"          % version
       val matcherExtra    = "org.specs2" %% "specs2-matcher-extra" % version
       val mock            = "org.specs2" %% "specs2-mock"          % version
@@ -132,6 +132,7 @@ object Dependencies {
     object TestContainers {
       val scalaTest  = "com.dimafeng" %% "testcontainers-scala-scalatest"  % Version.TestContainersScala
       val postgresql = "com.dimafeng" %% "testcontainers-scala-postgresql" % Version.TestContainersScala
+      val localstack = "com.dimafeng" %% "testcontainers-scala-localstack" % Version.TestContainersScala
     }
 
   }

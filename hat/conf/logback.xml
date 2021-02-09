@@ -26,10 +26,6 @@
 <configuration>
     <!--<statusListener class="ch.qos.logback.core.status.NopStatusListener" />-->
 
-    <evaluator name="InvalidLoginExceptionSuppressor">
-      <expression>throwable != null &amp;&amp; throwable instanceof com.amazonaws.services.lambda.model.AWSLambdaException</expression>
-    </evaluator>
-
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>[%-5level] [%date{MM/dd/YYYY HH:mm:ss}] [%logger{1}] %msg %ex{full,InvalidLoginExceptionSuppressor}%n</pattern>
@@ -162,14 +158,21 @@
     </logger>
 
     
-    <!--
+    
     <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
       <evaluator>
         <expression>com.amazonaws.services.lambda.model.AWSLambdaException</expression>
       </evaluator>
       <onMatch>DENY</onMatch>
     </filter>
-    -->
+    
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator>
+        <expression>*Dispatcher</expression>
+      </evaluator>
+      <onMatch>DENY</onMatch>
+    </filter>
+
 
     <!--<logger name="slick.jdbc.JdbcBackend.statement" level="INFO">-->
         <!--<appender-ref ref="ASYNCCONSOLE"/>-->

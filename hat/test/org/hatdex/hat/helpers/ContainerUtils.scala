@@ -1,10 +1,8 @@
 package org.hatdex.hat.helpers
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
 import play.api.Configuration
-import org.hatdex.hat.resourceManagement.{ FakeHatConfiguration, HatServer }
-import scala.concurrent.{ Await, Future }
+//import org.hatdex.hat.resourceManagement.{ FakeHatConfiguration, HatServer }
+import scala.concurrent.Future
 import org.hatdex.hat.dal.HatDbSchemaMigration
 import org.hatdex.libs.dal.HATPostgresProfile.backend.Database
 import scala.concurrent.ExecutionContext
@@ -23,7 +21,7 @@ trait ContainerUtils {
                                      "jdbcUrl" -> c.jdbcUrl
                     )),
                 "serverName" -> c.container.getHost(),
-                "numThreads" -> 3,
+                "numThreads" -> 10,
                 "connectionPool" -> "disabled",
                 "jdbcUrl" -> c.jdbcUrl
               )

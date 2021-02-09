@@ -31,7 +31,8 @@ import org.hatdex.libs.dal.HATPostgresProfile.backend.Database
 import org.scalatest._
 import matchers.should._
 import flatspec._
-import com.dimafeng.testcontainers.{ ForAllTestContainer, PostgreSQLContainer }
+import com.dimafeng.testcontainers.{ ForAllTestContainer, LocalStackContainer, MultipleContainers, PostgreSQLContainer }
+import org.testcontainers.containers.localstack.LocalStackContainer.Service._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -54,7 +55,10 @@ class DataDebitServiceSpec
     with ForAllTestContainer {
 
   // Ephemeral PG Container for this test suite
-  override val container = PostgreSQLContainer()
+  val pgContainer = PostgreSQLContainer()
+  val lsContainer = LocalStackContainer(services = Seq(LAMBDA))
+
+  override val container = MultipleContainers(pgContainer, lsContainer)
   container.start()
 
   val hatAddress            = "hat.hubofallthings.net"
@@ -67,9 +71,9 @@ class DataDebitServiceSpec
     .build()
 
   implicit val db: Database = Database.forURL(
-    url = container.jdbcUrl,
-    user = container.username,
-    password = container.password
+    url = pgContainer.jdbcUrl,
+    user = pgContainer.username,
+    password = pgContainer.password
   )
 
   val owner = new HatUser(userId = java.util.UUID.randomUUID(),
@@ -91,7 +95,7 @@ class DataDebitServiceSpec
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val conf = containerToConfig(container)
+  val conf = containerToConfig(pgContainer)
 
   Await.result(databaseReady(db, conf), 60.seconds)
 
