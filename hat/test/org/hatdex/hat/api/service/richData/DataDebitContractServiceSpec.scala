@@ -51,7 +51,6 @@ import org.hatdex.hat.api.service.UsersService
 class DataDebitContractServiceSpec
     extends AnyFlatSpec
     with Matchers
-    //with DataDebitServiceSpecContext
     with DataDebitContractServiceContext
     with ContainerUtils
     with ForAllTestContainer {
