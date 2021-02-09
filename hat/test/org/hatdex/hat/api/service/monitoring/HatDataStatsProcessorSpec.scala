@@ -36,44 +36,41 @@ import org.hatdex.hat.authentication.models.HatUser
 import org.hatdex.hat.dal.ModelTranslation
 import org.hatdex.hat.resourceManagement.FakeHatConfiguration
 import org.joda.time.DateTime
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{ JsValue, Json }
-import play.api.test.PlaySpecification
 import play.api.{ Application, Logger }
 
-class HatDataStatsProcessorSpec extends PlaySpecification with Mockito with HatDataStatsProcessorContext {
+import org.scalatest._
+import matchers.should._
+import flatspec._
+
+class HatDataStatsProcessorSpec extends AnyFlatSpec with Matchers with HatDataStatsProcessorContext {
 
   val logger = Logger(this.getClass)
 
-  sequential
+  "The `computeInboundStats` method" should "Correctly count numbers of values for simple objects" in {
+    val service = application.injector.instanceOf[HatDataStatsProcessor]
+    val stats   = service.computeInboundStats(simpleDataCreatedEvent)
 
-  "The `computeInboundStats` method" should {
-    "Correctly count numbers of values for simple objects" in {
-      val service = application.injector.instanceOf[HatDataStatsProcessor]
-      val stats = service.computeInboundStats(simpleDataCreatedEvent)
+    import org.hatdex.hat.api.json.DataStatsFormat._
+    logger.debug(s"Got back stats: ${Json.prettyPrint(Json.toJson(stats))}")
 
-      import org.hatdex.hat.api.json.DataStatsFormat._
-      logger.debug(s"Got back stats: ${Json.prettyPrint(Json.toJson(stats))}")
+    stats.logEntry should equal("test item")
+    stats.statsType should equal("inbound")
+    stats.stats.length should equal(1)
+    val endpointStats = stats.stats.head
+    endpointStats.endpoint should equal("testendpoint")
 
-      stats.logEntry must be equalTo "test item"
-      stats.statsType must be equalTo "inbound"
-      stats.stats.length must be equalTo 1
-      val endpointStats = stats.stats.head
-      endpointStats.endpoint must be equalTo "testendpoint"
-
-      endpointStats.propertyStats("field") must equalTo(1)
-      endpointStats.propertyStats("date") must equalTo(1)
-      endpointStats.propertyStats("date_iso") must equalTo(1)
-      endpointStats.propertyStats("anotherField") must equalTo(1)
-      endpointStats.propertyStats("object.objectField") must equalTo(1)
-      endpointStats.propertyStats("object.objectFieldArray[]") must equalTo(3)
-      endpointStats.propertyStats("object.objectFieldObjectArray[].subObjectName") must equalTo(2)
-      endpointStats.propertyStats("object.objectFieldObjectArray[].subObjectName2") must equalTo(2)
-    }
+    endpointStats.propertyStats("field") should equal(1)
+    endpointStats.propertyStats("date") should equal(1)
+    endpointStats.propertyStats("date_iso") should equal(1)
+    endpointStats.propertyStats("anotherField") should equal(1)
+    endpointStats.propertyStats("object.objectField") should equal(1)
+    endpointStats.propertyStats("object.objectFieldArray[]") should equal(3)
+    endpointStats.propertyStats("object.objectFieldObjectArray[].subObjectName") should equal(2)
+    endpointStats.propertyStats("object.objectFieldObjectArray[].subObjectName2") should equal(2)
   }
-
 }
 
 trait HatDataStatsProcessorContext extends Scope {
@@ -82,9 +79,8 @@ trait HatDataStatsProcessorContext extends Scope {
   val owner = HatUser(UUID.randomUUID(), "hatuser", Some("pa55w0rd"), "hatuser", Seq(Owner()), enabled = true)
 
   class ExtrasModule extends AbstractModule with ScalaModule {
-    override def configure(): Unit = {
+    override def configure(): Unit =
       bind[TrustedApplicationProvider].toInstance(new TestApplicationProvider(Seq()))
-    }
   }
 
   lazy val application: Application = new GuiceApplicationBuilder()
@@ -94,8 +90,7 @@ trait HatDataStatsProcessorContext extends Scope {
 
   implicit lazy val materializer: Materializer = application.materializer
 
-  val simpleJson: JsValue = Json.parse(
-    """
+  val simpleJson: JsValue = Json.parse("""
       | {
       |   "field": "value",
       |   "date": 1492699047,
@@ -115,7 +110,8 @@ trait HatDataStatsProcessorContext extends Scope {
   val simpleDataCreatedEvent = DataCreatedEvent(
     "testhat.hubofallthings.net",
     ModelTranslation.fromInternalModel(owner).clean,
-    DateTime.now(), "test item",
-    Seq(
-      EndpointData("testendpoint", Option(UUID.randomUUID()), None, None, simpleJson, None)))
+    DateTime.now(),
+    "test item",
+    Seq(EndpointData("testendpoint", Option(UUID.randomUUID()), None, None, simpleJson, None))
+  )
 }
