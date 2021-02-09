@@ -32,7 +32,9 @@ import org.hatdex.libs.dal.HATPostgresProfile.backend.Database
 import org.scalatest._
 import matchers.should._
 import flatspec._
+
 import com.dimafeng.testcontainers.{ ForAllTestContainer, PostgreSQLContainer }
+import org.hatdex.hat.helpers.{ ContainerUtils }
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -43,7 +45,6 @@ import com.atlassian.jwt.core.keys.KeyUtils
 import java.io.StringReader
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{ Logger, Application => PlayApplication }
-import org.hatdex.hat.helpers.{ ContainerUtils }
 import org.hatdex.hat.authentication.models.HatUser
 import scala.util.Random
 import org.hatdex.hat.api.service.UsersService
