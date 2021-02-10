@@ -24,85 +24,74 @@
 
 package org.hatdex.hat.api.controllers
 
-import com.mohiva.play.silhouette.test._
-import org.hatdex.hat.api.HATTestContext
-import org.hatdex.hat.api.models._
-import org.hatdex.hat.api.service.richData.{ DataDebitContractService, RichDataService }
-import org.joda.time.LocalDateTime
-import org.specs2.concurrent.ExecutionEnv
-import org.specs2.mock.Mockito
-import org.specs2.specification.{ BeforeAll, BeforeEach }
-import play.api.Logger
-import play.api.libs.json.{ JsArray, JsObject, JsValue, Json }
-import play.api.mvc.Result
-import play.api.test.{ FakeRequest, Helpers, PlaySpecification }
-
+import org.hatdex.hat.resourceManagement.{ FakeHatConfiguration, HatServer }
 import scala.concurrent.duration._
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.{ Await }
+import org.scalatest._
+import matchers.should._
+import flatspec._
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.{ Logger, Application => PlayApplication }
+import play.api.test.Helpers
+import play.api.test.FakeRequest
+import play.api.libs.json.{ JsArray, JsObject, JsValue, Json }
+import org.hatdex.hat.api.HATTestContext
+import akka.stream.Materializer
 
-class ContractDataSpec(implicit ee: ExecutionEnv)
-    extends PlaySpecification
-    with Mockito
-    with ContractDataContext
-    with BeforeEach
-    with BeforeAll {
+class ContractDataSpec extends AnyFlatSpec with Matchers with ContractDataContext {
 
   val logger = Logger(this.getClass)
+  import scala.concurrent.ExecutionContext.Implicits.global
+  val application: PlayApplication = new GuiceApplicationBuilder()
+    .configure(FakeHatConfiguration.config)
+    .build()
 
-  sequential
+  implicit lazy val materializer: Materializer = application.materializer
 
-  def beforeAll: Unit =
-    Await.result(databaseReady, 60.seconds)
+  "The Save Contract method" should "Return 400 on an empty request" in {
+    val request = FakeRequest("POST", "http://hat.hubofallthings.net")
+      .withBody(emptyRequestBody)
 
-  "The Save Contract method" should {
-    "Return 400 on an empty request" in {
-      val request = FakeRequest("POST", "http://hat.hubofallthings.net")
-        .withJsonBody(emptyRequestBody)
+    val controller = application.injector.instanceOf[ContractData]
+    val action1    = controller.createContractData("samplecontract", "testendpoint", None)
+    val action2    = controller.readContractData("samplecontract", "testendpoint", None, None, None, None)
 
-      val controller = application.injector.instanceOf[ContractData]
+    val response = for {
+      _ <- Helpers.call(action1, request)
+      r <- Helpers.call(action2, request)
+    } yield r
 
-      val response = for {
-        _ <- Helpers.call(controller.createContractData("samplecontract", "testendpoint", None), request)
-        r <-
-          Helpers.call(controller.readContractData("samplecontract", "testendpoint", None, None, None, None), request)
-      } yield r
-
-      val res = Await.result(response, 5.seconds)
-      res.header.status must beEqualTo(400)
-    }
+    val res = Await.result(response, 5.seconds)
+    res.header.status should equal(400)
   }
 
-  "The Read Contract Data method" should {
-    "Return 400 on an empty request" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withJsonBody(emptyRequestBody)
+  "The Read Contract Data method" should "Return 400 on an empty request" in {
+    val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+      .withBody(emptyRequestBody)
 
-      val controller = application.injector.instanceOf[ContractData]
+    val controller = application.injector.instanceOf[ContractData]
 
-      val response =
-        Helpers.call(controller.readContractData("samplecontract", "testendpoint", None, None, None, None), request)
+    val response =
+      Helpers.call(controller.readContractData("samplecontract", "testendpoint", None, None, None, None), request)
 
-      val res = Await.result(response, 5.seconds)
-      res.header.status must beEqualTo(400)
-    }
+    val res = Await.result(response, 5.seconds)
+    res.header.status should equal(400)
   }
 
-  "The Update Contract Data method" should {
-    "Return 400 on an empty request" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withJsonBody(emptyRequestBody)
+  "The Update Contract Data method" should "Return 400 on an empty request" in {
+    val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+      .withBody(emptyRequestBody)
 
-      val controller = application.injector.instanceOf[ContractData]
+    val controller = application.injector.instanceOf[ContractData]
 
-      val response =
-        Helpers.call(controller.readContractData("samplecontract", "testendpoint", None, None, None, None), request)
+    val response =
+      Helpers.call(controller.readContractData("samplecontract", "testendpoint", None, None, None, None), request)
 
-      val res = Await.result(response, 5.seconds)
-      res.header.status must beEqualTo(400)
-    }
+    val res = Await.result(response, 5.seconds)
+    res.header.status should equal(400)
   }
 }
 
-trait ContractDataContext extends HATTestContext {
+trait ContractDataContext {
   val emptyRequestBody: JsValue = Json.parse("""{"token":"", "contractId":"", "hatName":"","body":""}""")
 }
