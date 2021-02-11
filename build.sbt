@@ -39,6 +39,7 @@ lazy val hat = project
           Library.HATDeX.codegen,
           Library.Utils.pegdown,
           Library.Utils.awsJavaS3Sdk,
+          Library.Utils.awsJavaLambdaSdk,
           Library.Utils.prettyTime,
           Library.Utils.nbvcxz,
           Library.Utils.playMemcached,
@@ -53,15 +54,17 @@ lazy val hat = project
     libraryDependencies := (buildEnv.value match {
           case BuildEnv.Developement | BuildEnv.Test =>
             libraryDependencies.value ++ Seq(
-                  Library.Play.specs2,
                   Library.Specs2.core,
                   Library.Specs2.matcherExtra,
                   Library.Specs2.mock,
                   Library.Play.Silhouette.silhouetteTestkit,
-                  Library.Test.core,
+                  Library.Test.scalatest,
+                  Library.Test.scalatestwordspec,
+                  Library.Test.scalaplaytest,
                   Library.TestContainers.postgresql,
                   Library.TestContainers.localstack,
-                  Library.TestContainers.scalaTest
+                  Library.TestContainers.scalaTest,
+                  Library.Dataswift.testCommon
                 )
           case BuildEnv.Stage | BuildEnv.Production =>
             libraryDependencies.value.map(excludeSpecs2)

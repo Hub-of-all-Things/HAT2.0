@@ -30,12 +30,7 @@ import org.hatdex.hat.api.json.HatJsonFormats
 import org.hatdex.hat.api.models._
 import org.hatdex.hat.api.service.applications.ApplicationsService
 import org.hatdex.hat.api.service.{ SystemStatusService, UsersService }
-import org.hatdex.hat.authentication.{
-  ContainsApplicationRole,
-  HatApiAuthEnvironment,
-  HatApiController,
-  WithRole
-}
+import org.hatdex.hat.authentication.{ ContainsApplicationRole, HatApiAuthEnvironment, HatApiController, WithRole }
 import org.hatdex.hat.resourceManagement._
 import org.ocpsoft.prettytime.PrettyTime
 import play.api.{ Configuration, Logger }
@@ -87,9 +82,9 @@ class SystemStatus @Inject() (
   def status(): Action[AnyContent] =
     SecuredAction(
       WithRole(Owner(), Platform()) || ContainsApplicationRole(
-        Owner(),
-        Platform()
-      )
+          Owner(),
+          Platform()
+        )
     ).async { implicit request =>
       val eventualStatus = for {
         dbsize <- systemStatusService.tableSizeTotal
@@ -108,8 +103,8 @@ class SystemStatus @Inject() (
             "Previous Login",
             StatusKind.Text(
               p.format(l.date.toDate) + l.applicationName
-                .map(n => s" via $n")
-                .getOrElse(""),
+                    .map(n => s" via $n")
+                    .getOrElse(""),
               None
             )
           )
@@ -162,10 +157,10 @@ class SystemStatus @Inject() (
         case Some(authToken) if authToken == hatSharedSecret =>
           val response = Ok(Json.toJson(SuccessResponse("beforeDestroy DONE")))
 
-          val hatAddress = request.dynamicEnvironment.domain
-          val clearApps = cache.remove(s"apps:$hatAddress")
+          val hatAddress         = request.dynamicEnvironment.domain
+          val clearApps          = cache.remove(s"apps:$hatAddress")
           val clearConfiguration = cache.remove(s"configuration:$hatAddress")
-          val clearServer = cache.remove(s"server:$hatAddress")
+          val clearServer        = cache.remove(s"server:$hatAddress")
 
           // We don't care if the cache is successfully cleared. We just go ahead and return successful.
           Future

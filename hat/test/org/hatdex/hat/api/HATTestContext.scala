@@ -144,10 +144,6 @@ trait HATTestContext extends Scope with Mockito {
       hatDatabase
     )
 
-    println("--C--")
-    println("Hello")
-    println("--C--")
-
     val schemaMigration = new HatDbSchemaMigration(configuration, hatDatabase, global)
     schemaMigration
       .resetDatabase()

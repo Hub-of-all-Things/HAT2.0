@@ -53,6 +53,7 @@ object Dependencies {
       val ScalaTest           = "3.2.3"
       val TestContainersScala = "0.38.8"
       val ScalaMock           = "5.0.0"
+      val DsTestTools         = "0.2.3"
     }
 
     object Play {
@@ -74,7 +75,7 @@ object Dependencies {
         private val bouncyCastleVersion = "1.60"
         val bouncyCastle                = "org.bouncycastle"  % "bcprov-jdk15on" % bouncyCastleVersion
         val bouncyCastlePkix            = "org.bouncycastle"  % "bcpkix-jdk15on" % bouncyCastleVersion
-        val atlassianJwtVersion         = "2.0.5"
+        val atlassianJwtVersion         = "2.1.0"
         val atlassianJwtCore            = "com.atlassian.jwt" % "jwt-core"       % atlassianJwtVersion
       }
 
@@ -100,12 +101,14 @@ object Dependencies {
       val pegdown                  = "org.pegdown"            % "pegdown"                         % "1.6.0"
       val awsJavaSdk               = "com.amazonaws"          % "aws-java-sdk"                    % awsSdkVersion
       val awsJavaS3Sdk             = "com.amazonaws"          % "aws-java-sdk-s3"                 % awsSdkVersion
+      val awsJavaLambdaSdk         = "com.amazonaws"          % "aws-java-sdk-lambda"             % awsSdkVersion
       val prettyTime               = "org.ocpsoft.prettytime" % "prettytime"                      % "4.0.4.Final"
       val nbvcxz                   = "me.gosimple"            % "nbvcxz"                          % "1.4.3"
-      val elasticacheClusterClient = "com.amazonaws"          % "elasticache-java-cluster-client" % "1.1.1"
-      val playMemcached            = "com.github.mumoshu"    %% "play2-memcached-play26"          % "0.9.3" exclude ("net.spy", "spymemcached")
-      val alpakkaAwsLambda         = "com.lightbend.akka"    %% "akka-stream-alpakka-awslambda"   % "0.20"
-      val apacheCommonLang         = "org.apache.commons"     % "commons-lang3"                   % "3.10"
+      val elasticacheClusterClient = "com.amazonaws"          % "elasticache-java-cluster-client" % "1.1.2"
+      val playMemcached =
+        "com.github.mumoshu" %% "play2-memcached-play27" % "0.10.1" exclude ("net.spy", "spymemcached")
+      val alpakkaAwsLambda = "com.lightbend.akka" %% "akka-stream-alpakka-awslambda" % "0.20"
+      val apacheCommonLang = "org.apache.commons"  % "commons-lang3"                 % "3.10"
     }
 
     object HATDeX {
@@ -126,13 +129,19 @@ object Dependencies {
     }
 
     object Test {
-      val core = "org.scalatest" %% "scalatest" % Version.ScalaTest
+      val scalatest         = "org.scalatest"          %% "scalatest"          % Version.ScalaTest
+      val scalatestwordspec = "org.scalatest"          %% "scalatest-wordspec" % Version.ScalaTest
+      val scalaplaytest     = "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2"
     }
 
     object TestContainers {
       val scalaTest  = "com.dimafeng" %% "testcontainers-scala-scalatest"  % Version.TestContainersScala
       val postgresql = "com.dimafeng" %% "testcontainers-scala-postgresql" % Version.TestContainersScala
       val localstack = "com.dimafeng" %% "testcontainers-scala-localstack" % Version.TestContainersScala
+    }
+
+    object Dataswift {
+      val testCommon = "io.dataswift" %% "test-common" % Version.DsTestTools
     }
 
   }

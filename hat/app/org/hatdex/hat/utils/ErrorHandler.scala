@@ -27,21 +27,11 @@ package org.hatdex.hat.utils
 import java.sql.SQLTransientConnectionException
 import javax.inject._
 
-import com.mohiva.play.silhouette.api.actions.{
-  SecuredErrorHandler,
-  UnsecuredErrorHandler
-}
-import com.mohiva.play.silhouette.impl.exceptions.{
-  IdentityNotFoundException,
-  InvalidPasswordException
-}
+import com.mohiva.play.silhouette.api.actions.{ SecuredErrorHandler, UnsecuredErrorHandler }
+import com.mohiva.play.silhouette.impl.exceptions.{ IdentityNotFoundException, InvalidPasswordException }
 import org.hatdex.hat.resourceManagement.HatServerDiscoveryException
 import play.api._
-import play.api.http.{
-  ContentTypes,
-  DefaultHttpErrorHandler,
-  HttpErrorHandlerExceptions
-}
+import play.api.http.{ ContentTypes, DefaultHttpErrorHandler, HttpErrorHandlerExceptions }
 import play.api.i18n.{ I18nSupport, MessagesApi }
 import play.api.libs.json.Json
 import play.api.mvc.Results._
@@ -73,12 +63,10 @@ class ErrorHandler @Inject() (
     * @return A partial function which maps an exception to a Play result.
     */
   override def exceptionHandler(
-      implicit request: RequestHeader
-    ): PartialFunction[Throwable, Future[Result]] = {
+      implicit request: RequestHeader): PartialFunction[Throwable, Future[Result]] =
     hatExceptionHandler orElse
-      super[SecuredErrorHandler].exceptionHandler orElse
-      super[UnsecuredErrorHandler].exceptionHandler
-  }
+        super[SecuredErrorHandler].exceptionHandler orElse
+        super[UnsecuredErrorHandler].exceptionHandler
 
   /**
     * Exception handler which handles the specific errors expected in our context
@@ -87,8 +75,7 @@ class ErrorHandler @Inject() (
     * @return A partial function which maps an exception to a Play result.
     */
   protected def hatExceptionHandler(
-      implicit request: RequestHeader
-    ): PartialFunction[Throwable, Future[Result]] = {
+      implicit request: RequestHeader): PartialFunction[Throwable, Future[Result]] = {
     case _: InvalidPasswordException        => onNotAuthenticated
     case _: IdentityNotFoundException       => onNotAuthenticated
     case _: SQLTransientConnectionException => onHatUnavailable
@@ -97,8 +84,7 @@ class ErrorHandler @Inject() (
 
   // 401 - Unauthorized
   override def onNotAuthenticated(
-      implicit request: RequestHeader
-    ): Future[Result] = {
+      implicit request: RequestHeader): Future[Result] =
     Future.successful {
       render {
         case Accepts.Json() =>
@@ -111,12 +97,10 @@ class ErrorHandler @Inject() (
         case _ => Redirect("/")
       }
     }
-  }
 
   // 403 - Forbidden
   override def onNotAuthorized(
-      implicit request: RequestHeader
-    ): Future[Result] = {
+      implicit request: RequestHeader): Future[Result] =
     Future.successful {
       render {
         case Accepts.Json() =>
@@ -126,9 +110,8 @@ class ErrorHandler @Inject() (
         case _ => Redirect("/")
       }
     }
-  }
 
-  def onHatUnavailable(implicit request: RequestHeader): Future[Result] = {
+  def onHatUnavailable(implicit request: RequestHeader): Future[Result] =
     Future.successful {
       render {
         case Accepts.Json() =>
@@ -138,13 +121,11 @@ class ErrorHandler @Inject() (
         case _ => NotFound(org.hatdex.hat.phata.views.html.hatNotFound())
       }
     }
-  }
 
   // 404 - page not found error
   override def onNotFound(
       request: RequestHeader,
-      message: String
-    ): Future[Result] =
+      message: String): Future[Result] =
     Future.successful {
       implicit val _request = request
       render {
@@ -169,18 +150,15 @@ class ErrorHandler @Inject() (
   // 500 - internal server error
   override def onServerError(
       request: RequestHeader,
-      exception: Throwable
-    ): Future[Result] = {
+      exception: Throwable): Future[Result] =
     exceptionHandler(request).applyOrElse(
       exception,
       onGenericServerError(request)
     )
-  }
 
   def onGenericServerError(
       request: RequestHeader
-    )(exception: Throwable
-    ): Future[Result] = {
+    )(exception: Throwable): Future[Result] = {
     implicit val _request = request
 
     val usefulException = HttpErrorHandlerExceptions.throwableToUsefulException(
@@ -212,8 +190,7 @@ class ErrorHandler @Inject() (
 
   override def onBadRequest(
       request: RequestHeader,
-      message: String
-    ): Future[Result] = {
+      message: String): Future[Result] = {
     implicit val _request = request
     Future.successful {
       render {

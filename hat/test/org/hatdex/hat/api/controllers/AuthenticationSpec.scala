@@ -24,58 +24,105 @@
 
 package org.hatdex.hat.api.controllers
 
-import java.util.UUID
-
-import com.mohiva.play.silhouette.api.LoginInfo
-import com.mohiva.play.silhouette.api.crypto.Base64AuthenticatorEncoder
-import com.mohiva.play.silhouette.impl.authenticators.{ JWTRS256Authenticator, JWTRS256AuthenticatorSettings }
-import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.test._
-import org.hatdex.hat.api.HATTestContext
-import org.hatdex.hat.api.models.DataDebitOwner
-import org.hatdex.hat.api.service._
 import org.hatdex.hat.authentication.models.HatUser
 import org.hatdex.hat.phata.models.{ ApiPasswordChange, ApiPasswordResetRequest, ApiValidationRequest, MailTokenUser }
 import org.hatdex.hat.resourceManagement.HatServer
-import org.joda.time.DateTime
-import org.specs2.concurrent.ExecutionEnv
-import org.specs2.mock.Mockito
-import org.specs2.specification.BeforeAll
 import play.api.Logger
-import play.api.i18n.{ Lang, Messages, MessagesApi }
-import play.api.libs.json.{ JsValue, Json }
-import play.api.mvc.Result
-import play.api.test.{ FakeHeaders, FakeRequest, Helpers, PlaySpecification }
-import play.mvc.Http.{ HeaderNames, MimeTypes }
+import org.scalatest._
+import matchers.should._
+import flatspec._
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.{ Logger, Application => PlayApplication }
+import play.api.test.Helpers._
+import play.api.test.FakeRequest
+import org.hatdex.hat.api.models.{ Owner, Platform => DSPlatform }
+import akka.stream.Materializer
+import com.atlassian.jwt.core.keys.KeyUtils
+import scala.concurrent.{ Await }
+import scala.concurrent.duration._
+import org.hatdex.hat.authentication.models.HatUser
+import play.api.Configuration
+import java.io.StringReader
+import com.dimafeng.testcontainers.{ ForAllTestContainer, PostgreSQLContainer }
+import org.hatdex.hat.helpers.{ ContainerUtils }
+import org.hatdex.libs.dal.HATPostgresProfile.backend.Database
+import com.mohiva.play.silhouette.api.Environment
+import com.mohiva.play.silhouette.test._
+import org.hatdex.hat.authentication.HatApiAuthEnvironment
+import play.api.test.Helpers
+import play.api.test.{ FakeRequest }
+import org.hatdex.hat.resourceManagement.{ FakeHatConfiguration, HatServer }
 
 import scala.concurrent.duration._
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.{ Await }
+import play.DefaultApplication
 
-class AuthenticationSpec(implicit ee: ExecutionEnv)
-    extends PlaySpecification
-    with Mockito
+class AuthenticationSpec
+    extends AnyFlatSpec
+    with Matchers
+    with ContainerUtils
     with AuthenticationContext
-    with BeforeAll {
+    with ForAllTestContainer {
 
-  val logger = Logger(this.getClass)
+  import scala.concurrent.ExecutionContext.Implicits.global
 
-  sequential
+  // Ephemeral PG Container for this test suite
+  override val container = PostgreSQLContainer()
+  container.start()
 
-  def beforeAll: Unit =
-    Await.result(databaseReady, 60.seconds)
+  val logger                = Logger(this.getClass)
+  val hatAddress            = "hat.hubofallthings.net"
+  val hatUrl                = s"https://$hatAddress"
+  private val configuration = Configuration.from(FakeHatConfiguration.config)
+  private val hatConfig     = configuration.get[Configuration](s"hat.$hatAddress")
 
-  "The `publicKey` method" should {
-    "Return public key of the HAT" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+  private val keyUtils = new KeyUtils()
+  implicit val db: Database = Database.forURL(
+    url = container.jdbcUrl,
+    user = container.username,
+    password = container.password
+  )
 
-      val controller = application.injector.instanceOf[Authentication]
-      val result     = controller.publicKey().apply(request)
+  implicit lazy val materializer: Materializer = application.materializer
 
-      status(result) must equalTo(OK)
-      contentAsString(result) must startWith("-----BEGIN PUBLIC KEY-----\n")
-    }
+  val conf = containerToConfig(container)
+  Await.result(databaseReady(db, conf), 60.seconds)
+
+  implicit val hatServer: HatServer = HatServer(
+    hatAddress,
+    "hat",
+    "user@hat.org",
+    keyUtils.readRsaPrivateKeyFromPem(new StringReader(hatConfig.get[String]("privateKey"))),
+    keyUtils.readRsaPublicKeyFromPem(new StringReader(hatConfig.get[String]("publicKey"))),
+    db
+  )
+
+  val application: PlayApplication = new GuiceApplicationBuilder()
+    .configure(FakeHatConfiguration.config)
+    .build()
+
+  val owner = new HatUser(userId = java.util.UUID.randomUUID(),
+                          email = "user@hat.org",
+                          pass = Some("$2a$06$QprGa33XAF7w8BjlnKYb3OfWNZOuTdzqKeEsF7BZUfbiTNemUW/n."),
+                          name = "hat",
+                          roles = Seq(Owner(), DSPlatform()),
+                          enabled = true
+  )
+
+  implicit val env: Environment[HatApiAuthEnvironment] =
+    FakeEnvironment[HatApiAuthEnvironment](Seq(owner.loginInfo -> owner), hatServer)
+
+  "The `publicKey` method" should "Return public key of the HAT" in {
+    val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+
+    val controller = application.injector.instanceOf[Authentication]
+    val result     = Helpers.call(controller.publicKey(), request)
+
+    status(result) should equal(OK)
+    //contentAsString(result) must startWith("-----BEGIN PUBLIC KEY-----\n")
   }
-
+  /*
   "The `validateToken` method" should {
     "return status 401 if authenticator but no identity was found" in {
       val request = FakeRequest("GET", "http://hat.hubofallthings.net")
@@ -343,9 +390,10 @@ class AuthenticationSpec(implicit ee: ExecutionEnv)
       (contentAsJson(result) \ "cause").as[String] must equalTo("No user matching token")
     }
   }
+   */
 }
 
-trait AuthenticationContext extends HATTestContext {
+trait AuthenticationContext {
   val passwordChangeIncorrect = ApiPasswordChange("some-passwords-are-better-than-others", Some("wrongOldPassword"))
   val passwordChangeSimple    = ApiPasswordChange("simple", Some("pa55w0rd"))
   val passwordChangeStrong    = ApiPasswordChange("some-passwords-are-better-than-others", Some("pa55w0rd"))

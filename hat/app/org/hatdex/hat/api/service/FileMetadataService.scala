@@ -45,8 +45,7 @@ class FileMetadataService @Inject() (implicit val ec: DalExecutionContext) {
 
   def getUniqueFileId(
       file: ApiHatFile
-    )(implicit db: Database
-    ): Future[ApiHatFile] = {
+    )(implicit db: Database): Future[ApiHatFile] = {
     val extensionNormalized = file.name
       .split('.')
       .drop(1)
@@ -116,24 +115,19 @@ class FileMetadataService @Inject() (implicit val ec: DalExecutionContext) {
   }
 
   private def groupFilePermissions(
-      files: Seq[(HatFileRow, Option[HatFileAccessRow])]
-    ): Iterable[ApiHatFile] = {
+      files: Seq[(HatFileRow, Option[HatFileAccessRow])]): Iterable[ApiHatFile] =
     files.groupBy(_._1).map {
       case (file, permissions) =>
         ModelTranslation
           .fromDbModel(file)
-          .copy(permissions =
-            Some(permissions.unzip._2.flatten.map(ModelTranslation.fromDbModel))
-          )
+          .copy(permissions = Some(permissions.unzip._2.flatten.map(ModelTranslation.fromDbModel)))
     }
-  }
 
   def grantAccess(
       file: ApiHatFile,
       user: HatUser,
       content: Boolean
-    )(implicit db: Database
-    ): Future[Unit] = {
+    )(implicit db: Database): Future[Unit] = {
     val filePermissionRow =
       HatFileAccessRow(file.fileId.get, user.userId, content)
     db.run(HatFileAccess.forceInsert(filePermissionRow)).map(_ => ())
@@ -142,8 +136,7 @@ class FileMetadataService @Inject() (implicit val ec: DalExecutionContext) {
   def restrictAccess(
       file: ApiHatFile,
       user: HatUser
-    )(implicit db: Database
-    ): Future[Unit] = {
+    )(implicit db: Database): Future[Unit] = {
     val filePermissionRemove = HatFileAccess
       .filter(f => f.fileId === file.fileId.get && f.userId === user.userId)
       .delete
@@ -154,8 +147,7 @@ class FileMetadataService @Inject() (implicit val ec: DalExecutionContext) {
       fileTemplate: ApiHatFile,
       user: HatUser,
       content: Boolean
-    )(implicit db: Database
-    ): Future[Unit] = {
+    )(implicit db: Database): Future[Unit] = {
     val matchingFileQuery = for {
       file <- findFilesQuery(fileTemplate)
     } yield file.id
@@ -171,8 +163,7 @@ class FileMetadataService @Inject() (implicit val ec: DalExecutionContext) {
   def restrictAccessPattern(
       fileTemplate: ApiHatFile,
       user: HatUser
-    )(implicit db: Database
-    ): Future[Unit] = {
+    )(implicit db: Database): Future[Unit] = {
     val matchingFileQuery = for {
       file <- findFilesQuery(fileTemplate)
     } yield file.id
@@ -187,19 +178,18 @@ class FileMetadataService @Inject() (implicit val ec: DalExecutionContext) {
   def delete(fileId: String)(implicit db: Database): Future[ApiHatFile] = {
     import HatJsonFormats.apiHatFileStatusFormat
     val query = for {
-      _ <-
-        HatFile
-          .filter(_.id === fileId)
-          .map(v => (v.status, v.lastUpdated))
-          .update((Json.toJson(HatFileStatus.Deleted()), LocalDateTime.now()))
+      _ <- HatFile
+             .filter(_.id === fileId)
+             .map(v => (v.status, v.lastUpdated))
+             //.update((Json.toJson(HatFileStatus.Deleted()), LocalDateTime.now()))
+             .update((Json.toJson("deleted"), LocalDateTime.now()))
       updatedFile <- HatFile.filter(_.id === fileId).result
     } yield updatedFile
     db.run(query).map(updated => ModelTranslation.fromDbModel(updated.head))
   }
 
   private def findFilesQuery(
-      fileTemplate: ApiHatFile
-    ): Query[HatFile, HatFileRow, Seq] = {
+      fileTemplate: ApiHatFile): Query[HatFile, HatFileRow, Seq] =
     HatFile.filter { t =>
       Some(fileTemplate.name)
         .filterNot(_.isEmpty)
@@ -210,9 +200,7 @@ class FileMetadataService @Inject() (implicit val ec: DalExecutionContext) {
       fileTemplate.status.fold(true.bind)(
         t.status.+>>("status") === _.status
       ) &&
-      fileTemplate.title.fold(true.bind)(someTitle =>
-        toTsVector(t.title.getOrElse("")) @@ plainToTsQuery(someTitle)
-      ) &&
+      fileTemplate.title.fold(true.bind)(someTitle => toTsVector(t.title.getOrElse("")) @@ plainToTsQuery(someTitle)) &&
       fileTemplate.description.fold(true.bind)(
         toTsVector(t.description.getOrElse("")) @@ plainToTsQuery(_)
       ) &&
@@ -220,12 +208,10 @@ class FileMetadataService @Inject() (implicit val ec: DalExecutionContext) {
         t.tags.getOrElse(List[String]()) @> _.toList
       )
     }
-  }
 
   def getById(
       fileId: String
-    )(implicit db: Database
-    ): Future[Option[ApiHatFile]] = {
+    )(implicit db: Database): Future[Option[ApiHatFile]] = {
     val fileQuery = HatFile
       .joinLeft(HatFileAccess)
       .on(_.id === _.fileId)
@@ -238,12 +224,11 @@ class FileMetadataService @Inject() (implicit val ec: DalExecutionContext) {
 
   def search(
       fileTemplate: ApiHatFile
-    )(implicit db: Database
-    ): Future[Seq[ApiHatFile]] = {
+    )(implicit db: Database): Future[Seq[ApiHatFile]] = {
     val fileQuery = for {
       file <- findFilesQuery(fileTemplate)
-        .joinLeft(HatFileAccess)
-        .on(_.id === _.fileId)
+                .joinLeft(HatFileAccess)
+                .on(_.id === _.fileId)
     } yield file
 
     db.run(fileQuery.result)

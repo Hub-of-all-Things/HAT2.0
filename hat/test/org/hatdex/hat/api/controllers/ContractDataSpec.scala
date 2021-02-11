@@ -35,7 +35,6 @@ import play.api.{ Logger, Application => PlayApplication }
 import play.api.test.Helpers
 import play.api.test.FakeRequest
 import play.api.libs.json.{ JsArray, JsObject, JsValue, Json }
-import org.hatdex.hat.api.HATTestContext
 import akka.stream.Materializer
 
 class ContractDataSpec extends AnyFlatSpec with Matchers with ContractDataContext {

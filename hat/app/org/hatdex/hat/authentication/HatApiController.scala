@@ -58,20 +58,15 @@ abstract class HatController[T <: HatAuthEnvironment](
     silhouette.userAwareAction(env)
 
   implicit def securedRequest2User[A](
-      implicit request: SecuredRequest[T, A]
-    ): HatUser = request.identity
+      implicit request: SecuredRequest[T, A]): HatUser = request.identity
   implicit def userAwareRequest2UserOpt[A](
-      implicit request: UserAwareRequest[T, A]
-    ): Option[HatUser] = request.identity
+      implicit request: UserAwareRequest[T, A]): Option[HatUser] = request.identity
   implicit def securedRequest2HatServer[A](
-      implicit request: SecuredRequest[T, A]
-    ): HatServer = request.dynamicEnvironment
+      implicit request: SecuredRequest[T, A]): HatServer = request.dynamicEnvironment
   implicit def userAwareRequest2HatServer[A](
-      implicit request: UserAwareRequest[T, A]
-    ): HatServer = request.dynamicEnvironment
+      implicit request: UserAwareRequest[T, A]): HatServer = request.dynamicEnvironment
   implicit def securedRequest2Authenticator[A](
-      implicit request: SecuredRequest[T, A]
-    ): T#A = request.authenticator
+      implicit request: SecuredRequest[T, A]): T#A = request.authenticator
   implicit def hatServer2db(implicit hatServer: HatServer): Database =
     hatServer.db
   implicit def identity2ApiUser(implicit identity: T#I): User =
@@ -79,8 +74,7 @@ abstract class HatController[T <: HatAuthEnvironment](
 
   def request2ApplicationStatus(
       request: SecuredRequest[HatApiAuthEnvironment, _]
-    )(implicit applicationsService: ApplicationsService
-    ): Future[Option[HatApplication]] = {
+    )(implicit applicationsService: ApplicationsService): Future[Option[HatApplication]] =
     request.authenticator.customClaims.flatMap { customClaims =>
       (customClaims \ "application").asOpt[String]
     } map { app =>
@@ -92,12 +86,10 @@ abstract class HatController[T <: HatAuthEnvironment](
     } getOrElse {
       Future.successful(None)
     }
-  }
 
   def request2ApplicationStatus(
       request: UserAwareRequest[HatApiAuthEnvironment, _]
-    )(implicit applicationsService: ApplicationsService
-    ): Future[Option[HatApplication]] = {
+    )(implicit applicationsService: ApplicationsService): Future[Option[HatApplication]] =
     (request.authenticator, request.identity) match {
       case (Some(authenticator), Some(identity)) =>
         authenticator.customClaims.flatMap { customClaims =>
@@ -114,7 +106,6 @@ abstract class HatController[T <: HatAuthEnvironment](
       case _ =>
         Future.successful(None) // if no authenticator, certainly no application
     }
-  }
 }
 
 abstract class HatApiController(
@@ -139,34 +130,25 @@ class UserLimiter @Inject() (
     * @param requestKeyExtractor The Request Parameter we want to filter from.
     * @tparam K the key by which to identify the user.
     */
-  def createUserAware[
-      T <: HatAuthEnvironment,
-      R[_] <: UserAwareRequest[T, _],
-      K
-    ](rateLimiter: RateLimiter
+  def createUserAware[T <: HatAuthEnvironment, R[_] <: UserAwareRequest[T, _], K](
+      rateLimiter: RateLimiter
     )(reject: R[_] => Result,
-      requestKeyExtractor: R[_] => K
-    ): RateLimitActionFilter[R] with ActionFunction[R, R] = {
-    new RateLimitActionFilter[R](rateLimiter)(reject, requestKeyExtractor)
-      with ActionFunction[R, R]
-  }
+      requestKeyExtractor: R[_] => K): RateLimitActionFilter[R] with ActionFunction[R, R] =
+    new RateLimitActionFilter[R](rateLimiter)(reject, requestKeyExtractor) with ActionFunction[R, R]
 
   def createSecured[T <: HatAuthEnvironment, R[_] <: SecuredRequest[T, _], K](
       rateLimiter: RateLimiter
     )(reject: R[_] => Result,
-      requestKeyExtractor: R[_] => K
-    ): RateLimitActionFilter[R] with ActionFunction[R, R] = {
-    new RateLimitActionFilter[R](rateLimiter)(reject, requestKeyExtractor)
-      with ActionFunction[R, R]
-  }
+      requestKeyExtractor: R[_] => K): RateLimitActionFilter[R] with ActionFunction[R, R] =
+    new RateLimitActionFilter[R](rateLimiter)(reject, requestKeyExtractor) with ActionFunction[R, R]
 
-  type Secured[B] = SecuredRequest[HatApiAuthEnvironment, B]
+  type Secured[B]   = SecuredRequest[HatApiAuthEnvironment, B]
   type UserAware[B] = UserAwareRequest[HatApiAuthEnvironment, B]
 
   // allow 10 requests immediately and get a new token every 2 seconds
   private val rl = new RateLimiter(10, 1f / 2, "[Rate Limiter]")
 
-  private implicit val errorMesageFormat: Format[ErrorMessage] =
+  implicit private val errorMesageFormat: Format[ErrorMessage] =
     HatJsonFormats.errorMessage
   private def response(r: RequestHeader) =
     Results.BadRequest(
@@ -179,21 +161,19 @@ class UserLimiter @Inject() (
       )
     )
 
-  def UserAwareRateLimit: RateLimitActionFilter[UserAware]
-    with ActionFunction[UserAware, UserAware] =
+  def UserAwareRateLimit: RateLimitActionFilter[UserAware] with ActionFunction[UserAware, UserAware] =
     createUserAware[HatApiAuthEnvironment, UserAware, String](rl)(
       response,
       clientIp
     )
 
-  def SecureRateLimit
-      : RateLimitActionFilter[Secured] with ActionFunction[Secured, Secured] =
+  def SecureRateLimit: RateLimitActionFilter[Secured] with ActionFunction[Secured, Secured] =
     createSecured[HatApiAuthEnvironment, Secured, String](rl)(
       response,
       clientIp
     )
 
-  def clientIp(request: RequestHeader)(implicit conf: Configuration): String = {
+  def clientIp(request: RequestHeader)(implicit conf: Configuration): String =
     (for {
       configuredHeader <- conf.get[Option[String]]("playguard.clientipheader")
       ip <- request.headers.get(configuredHeader)
@@ -210,5 +190,4 @@ class UserLimiter @Inject() (
         }
 
     }
-  }
 }

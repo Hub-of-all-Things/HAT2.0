@@ -25,7 +25,13 @@
 package org.hatdex.hat.resourceManagement
 
 object FakeHatConfiguration {
-  def config =
+  def config: Map[String, Object] = config()
+  def config(
+      dbName: String = "test",
+      dbUser: String = "test",
+      dbPassword: String = "test",
+      dbPort: Int = 5432,
+      dbHost: String = "localhost"): Map[String, Object] =
     Map(
       "play.cache.createBoundCaches" -> "false",
       "resourceManagement.hatDBIdleTimeout" -> "30 seconds",
@@ -35,7 +41,14 @@ object FakeHatConfiguration {
                   "database" -> Map(
                         "dataSourceClass" -> "org.postgresql.ds.PGSimpleDataSource",
                         "connectionPool" -> "disabled",
-                        "properties" -> Map("databaseName" -> "test", "user" -> "test", "password" -> "test")
+                        "properties" -> Map(
+                              "databaseName" -> dbName,
+                              "user" -> dbUser,
+                              "password" -> dbPassword,
+                              "host" -> dbHost,
+                              "serverName" -> dbHost,
+                              "port" -> dbPort
+                            )
                       ),
                   "publicKey" -> """-----BEGIN PUBLIC KEY-----
           |MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAznT9VIjovMEB/hoZ9j+j
