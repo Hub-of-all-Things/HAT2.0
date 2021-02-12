@@ -60,7 +60,6 @@ import io.dataswift.test.common.BaseSpec
 import com.mohiva.play.silhouette.api.LoginInfo
 import java.util.concurrent.Future
 import play.api.mvc.Result
-
 import com.mohiva.play.silhouette.api.crypto.Base64AuthenticatorEncoder
 import com.mohiva.play.silhouette.impl.authenticators.JWTRS256AuthenticatorSettings
 import com.mohiva.play.silhouette.impl.authenticators.JWTRS256Authenticator

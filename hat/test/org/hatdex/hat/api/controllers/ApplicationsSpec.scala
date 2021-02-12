@@ -24,83 +24,76 @@
 
 package org.hatdex.hat.api.controllers
 
-import com.mohiva.play.silhouette.test._
-import org.hatdex.hat.api.service.applications.ApplicationsServiceContext
-import org.hatdex.hat.api.json.ApplicationJsonProtocol
-import org.hatdex.hat.api.models.applications.{ Application, HatApplication }
-import org.hatdex.hat.api.models.{ AccessToken, ErrorMessage }
-import org.hatdex.hat.authentication.HatApiAuthEnvironment
-import play.api.libs.json.{ JsObject, JsString }
-import org.specs2.mock.Mockito
-import org.specs2.specification.{ BeforeAll, BeforeEach }
-import play.api.Logger
-import play.api.test.{ FakeRequest, PlaySpecification }
-import io.dataswift.test.common.BaseSpec
-import com.dimafeng.testcontainers.{ ForAllTestContainer, PostgreSQLContainer }
-import org.hatdex.hat.helpers.{ ContainerUtils }
-import ApplicationJsonProtocol._
-import org.hatdex.hat.api.json.HatJsonFormats.{ accessTokenFormat, errorMessage }
-import org.hatdex.hat.authentication.models.HatUser
-import play.api.Configuration
 import java.io.StringReader
-import org.hatdex.libs.dal.HATPostgresProfile.backend.Database
-import org.hatdex.hat.resourceManagement.{ FakeHatConfiguration, HatServer }
-import akka.stream.Materializer
-import com.atlassian.jwt.core.keys.KeyUtils
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.{ Logger, Application => PlayApplication }
-import play.api.test.Helpers
-import play.api.test.Helpers._
-import play.api.test.FakeRequest
-import org.hatdex.hat.api.models.{ Owner, Platform => DSPlatform, DataDebitOwner }
-import org.hatdex.hat.api.service.UsersService
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import com.mohiva.play.silhouette.api._
+import com.atlassian.jwt.core.keys.KeyUtils
+import com.dimafeng.testcontainers.ForAllTestContainer
+import com.dimafeng.testcontainers.PostgreSQLContainer
 import com.google.inject.AbstractModule
+import com.mohiva.play.silhouette.api._
+import com.mohiva.play.silhouette.test._
+import io.dataswift.test.common.BaseSpec
 import net.codingwell.scalaguice.ScalaModule
-import org.hatdex.hat.resourceManagement.FakeHatServerProvider
-import org.hatdex.hat.resourceManagement.HatServerProvider
-import org.hatdex.hat.api.service.MailTokenService
-import org.hatdex.hat.api.service.MailTokenUserService
-import org.hatdex.hat.phata.models.MailTokenUser
-import play.cache.AsyncCacheApi
-import play.cache.NamedCacheImpl
-import org.hatdex.hat.FakeCache
-import org.hatdex.hat.utils.LoggingProvider
-import org.hatdex.hat.utils.MockLoggingProvider
-import play.api.http.HttpErrorHandler
-import org.hatdex.hat.utils.ErrorHandler
-import org.hatdex.hat.api.service.applications.TrustedApplicationProvider
-import org.hatdex.hat.api.service.applications.TestApplicationProvider
+import org.hatdex.hat.api.models.DataDebitOwner
+import org.hatdex.hat.api.models.Drawable
+import org.hatdex.hat.api.models._
+import org.hatdex.hat.api.models.applications.Application
 import org.hatdex.hat.api.models.applications.ApplicationKind
 import org.hatdex.hat.api.models.applications.ApplicationKind._
 import org.hatdex.hat.api.models.applications._
-import org.hatdex.hat.api.models.Drawable
+import org.hatdex.hat.api.models.{ Owner, Platform => DSPlatform }
+import org.hatdex.hat.api.service.UsersService
+import org.hatdex.hat.api.service.applications.TestApplicationProvider
+import org.hatdex.hat.api.service.applications.TrustedApplicationProvider
+import org.hatdex.hat.authentication.HatApiAuthEnvironment
+import org.hatdex.hat.authentication.models.HatUser
+import org.hatdex.hat.helpers.{ ContainerUtils }
+import org.hatdex.hat.resourceManagement.HatDatabaseProvider
+import org.hatdex.hat.resourceManagement.HatDatabaseProviderConfig
+import org.hatdex.hat.resourceManagement.HatKeyProvider
+import org.hatdex.hat.resourceManagement.HatKeyProviderConfig
+import org.hatdex.hat.resourceManagement.HatServer
+import org.hatdex.hat.resourceManagement.HatServerProvider
+import org.hatdex.hat.resourceManagement.HatServerProviderImpl
+import org.hatdex.hat.utils.LoggingProvider
+import org.hatdex.hat.utils.MockLoggingProvider
+import org.hatdex.libs.dal.HATPostgresProfile.backend.Database
 import org.joda.time.DateTime
-import org.hatdex.hat.api.models._
-import org.hatdex.hat.api.service.applications.ApplicationStatusCheckService
-import org.hatdex.hat.api.service.StatsReporter
-import play.api.libs.json.Json
 import org.joda.time.LocalDateTime
-import org.hatdex.hat.api.service.applications.ApplicationsService
-import com.mohiva.play.silhouette.api.SilhouetteProvider
-import play.api.test.WithApplication
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import play.api.Configuration
+import play.api.Logger
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
+import play.api.test.FakeRequest
+import play.api.{ Application => PlayApplication }
+import play.libs.akka.AkkaGuiceSupport
+import play.api.cache.AsyncCacheApi
+import org.hatdex.hat.FakeCache
+import com.google.inject.Provides
+import play.api.test.Helpers
+import play.api.test.Helpers._
 
 class ApplicationsSpec
     extends BaseSpec
-    with ContainerUtils /*with ApplicationsServiceContext*/
-    with ForAllTestContainer {
+    with ContainerUtils
+    with ApplicationsContext
+    with ForAllTestContainer
+    with GuiceOneAppPerTest {
 
   // ------------------------
 
   import scala.concurrent.ExecutionContext.Implicits.global
+
   // Ephemeral PG Container for this test suite
   override val container = PostgreSQLContainer()
   container.start()
   val conf = containerToConfig(container)
+  // Logger
+  val logger = Logger(this.getClass)
 
-  val logger            = Logger(this.getClass)
   val hatAddress        = "hat.hubofallthings.net"
   val hatUrl            = s"https://$hatAddress"
   private val hatConfig = conf.get[Configuration](s"hat.$hatAddress")
@@ -128,7 +121,7 @@ class ApplicationsSpec
     email = "user@hat.org",
     pass = Some("$2a$06$QprGa33XAF7w8BjlnKYb3OfWNZOuTdzqKeEsF7BZUfbiTNemUW/n."),
     name = "hat",
-    roles = Seq(Owner(), DSPlatform()),
+    roles = Seq(Owner()),
     enabled = true
   )
 
@@ -147,21 +140,225 @@ class ApplicationsSpec
       hatServer
     )
 
-  class FakeModule extends AbstractModule with ScalaModule {
+  class FakeModuleApplications extends AbstractModule with ScalaModule with AkkaGuiceSupport {
     override def configure(): Unit = {
       bind[Environment[HatApiAuthEnvironment]].toInstance(environment)
-      bind[Silhouette[HatApiAuthEnvironment]].to[SilhouetteProvider[HatApiAuthEnvironment]]
-      bind[HatServerProvider].toInstance(new FakeHatServerProvider(hatServer))
-      bind[MailTokenService[MailTokenUser]].to[MailTokenUserService]
-      bind[HttpErrorHandler].to[ErrorHandler]
-      //bind[ApplicationsService].to[ApplicationsService]
-      //bind[AsyncCacheApi].annotatedWith(new NamedCacheImpl("user-cache")).to[FakeCache]
-      //bind[AsyncCacheApi].to[FakeCache]
-      //bind[LoggingProvider].toInstance(new MockLoggingProvider(mockLogger))
-      println("FakeModule")
+      bind[HatDatabaseProvider].to[HatDatabaseProviderConfig]
+      bind[HatKeyProvider].to[HatKeyProviderConfig]
+      bind[AsyncCacheApi].to[FakeCache]
+      bind[HatServerProvider].to[HatServerProviderImpl]
+      bind[LoggingProvider].toInstance(new MockLoggingProvider(logger))
+    }
+    @Provides @play.cache.NamedCache(value = "hatserver-cache")
+    def provideHatServerCache(): AsyncCacheApi =
+      new FakeCache()
+  }
+
+  val application: PlayApplication = new GuiceApplicationBuilder()
+    .configure(conf)
+    .overrides(new FakeModuleApplications)
+    .build()
+
+  val userService = application.injector.instanceOf[UsersService]
+  userService.saveUser(owner)
+  userService.saveUser(dataDebitUser)
+
+  // ------------------------
+
+  "The `applications` method" should "Return list of available applications" in {
+    // implicit val env: Environment[HatApiAuthEnvironment] =
+    //   FakeEnvironment[HatApiAuthEnvironment](
+    //     Seq(owner.loginInfo -> owner, dataDebitUser.loginInfo -> dataDebitUser),
+    //     hatServer
+    //   )
+
+    // val request = FakeRequest("GET", hatUrl)
+    //   .withAuthenticator(owner.loginInfo)(env)
+
+    // val controller = application.injector.instanceOf[Applications]
+    // val result     = controller.applicationStatus("random-id").apply(request)
+
+    //Helpers.status(result) must equal(NOT_FOUND)
+    //val error = contentAsJson(result).as[ErrorMessage]
+    //error.message must equal("Application not Found")
+
+    val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+      .withAuthenticator(owner.loginInfo)
+
+    val controller = application.injector.instanceOf[Applications]
+    val result     = controller.applications().apply(request)
+
+    Helpers.status(result) must equal(OK)
+    // contentAsJson(result).validate[Seq[HatApplication]].isSuccess must equal(true)
+    // val apps = contentAsJson(result).as[Seq[HatApplication]]
+    // apps.length must equal(8)
+    // apps.find(_.application.id == notablesApp.id) must beSome
+    // apps.find(_.application.id == notablesAppDebitless.id) must beSome
+    // apps.find(_.application.id == notablesAppIncompatible.id) must beSome
+  }
+
+  /*
+  "The `applicationStatus` method" should {
+    "Return status of a single application" in {
+      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+        .withAuthenticator(owner.loginInfo)
+
+      val controller = application.injector.instanceOf[Applications]
+      val result     = controller.applicationStatus(notablesApp.id).apply(request)
+
+      status(result) must equalTo(OK)
+      val app = contentAsJson(result).as[HatApplication]
+      app.application.info.name must be equalTo notablesApp.info.name
+    }
+
+    "Return 404 for a non-existent application" in {
+      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+        .withAuthenticator(owner.loginInfo)
+
+      val controller = application.injector.instanceOf[Applications]
+      val result     = controller.applicationStatus("random-id").apply(request)
+
+      status(result) must equalTo(NOT_FOUND)
+      val error = contentAsJson(result).as[ErrorMessage]
+      error.message must be equalTo "Application not Found"
     }
   }
 
+  "The `hmi` method" should {
+    "Return the information about the specified application" in {
+      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+
+      val controller = application.injector.instanceOf[Applications]
+      val result     = controller.hmi(notablesApp.id).apply(request)
+
+      status(result) must equalTo(OK)
+      val app = contentAsJson(result).as[Application]
+      app.id must beEqualTo(notablesApp.id)
+    }
+
+    "Return 404 for non-existend application" in {
+      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+
+      val controller = application.injector.instanceOf[Applications]
+      val result     = controller.hmi("random-id").apply(request)
+
+      status(result) must equalTo(NOT_FOUND)
+      val error = contentAsJson(result).as[ErrorMessage]
+      error.cause must startWith("Application configuration for ID random-id could not be found")
+    }
+  }
+
+  "The `applicationSetup` method" should {
+    "Return setup application status" in {
+      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+        .withAuthenticator(owner.loginInfo)
+
+      val controller = application.injector.instanceOf[Applications]
+      val result     = controller.applicationSetup(notablesApp.id).apply(request)
+
+      status(result) must equalTo(OK)
+      val app = contentAsJson(result).as[HatApplication]
+      app.application.info.name must be equalTo notablesApp.info.name
+      app.setup must be equalTo true
+      app.active must be equalTo true
+    }
+
+    "Return 404 for a non-existent application" in {
+      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+        .withAuthenticator(owner.loginInfo)
+
+      val controller = application.injector.instanceOf[Applications]
+      val result     = controller.applicationSetup("random-id").apply(request)
+
+      status(result) must equalTo(BAD_REQUEST)
+      val error = contentAsJson(result).as[ErrorMessage]
+      error.message must be equalTo "Application not Found"
+    }
+  }
+
+  "The `applicationSetup` method" should {
+    "Return disabled application status" in {
+      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+        .withAuthenticator(owner.loginInfo)
+
+      val controller = application.injector.instanceOf[Applications]
+      val result     = controller.applicationDisable(notablesApp.id).apply(request)
+
+      status(result) must equalTo(OK)
+      val app = contentAsJson(result).as[HatApplication]
+      app.application.info.name must be equalTo notablesApp.info.name
+      app.setup must be equalTo true
+      app.active must be equalTo false
+    }
+
+    "Return 404 for a non-existent application" in {
+      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+        .withAuthenticator(owner.loginInfo)
+
+      val controller = application.injector.instanceOf[Applications]
+      val result     = controller.applicationDisable("random-id").apply(request)
+
+      status(result) must equalTo(BAD_REQUEST)
+      val error = contentAsJson(result).as[ErrorMessage]
+      error.message must be equalTo "Application not Found"
+    }
+  }
+
+  "The `applicationToken` method" should {
+    "Return 401 Forbidden for application token with no explicit permission" in {
+      val authenticator: HatApiAuthEnvironment#A =
+        FakeAuthenticator[HatApiAuthEnvironment](owner.loginInfo)
+          .copy(customClaims =
+            Some(
+              JsObject(
+                Map(
+                  "application" -> JsString("notables"),
+                  "applicationVersion" -> JsString("1.0.0")
+                )
+              )
+            )
+          )
+
+      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+        .withAuthenticator[HatApiAuthEnvironment](authenticator)(environment)
+
+      val controller = application.injector.instanceOf[Applications]
+      val result     = controller.applicationToken(notablesApp.id).apply(request)
+
+      status(result) must equalTo(FORBIDDEN)
+      logger.info(s"Got back result ${contentAsString(result)}")
+      val error = contentAsJson(result) \ "error"
+      error.get.as[String] must be equalTo "Forbidden"
+    }
+
+    "Return 404 for application that does not exist" in {
+      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+        .withAuthenticator(owner.loginInfo)
+
+      val controller = application.injector.instanceOf[Applications]
+      val result     = controller.applicationToken("random-id").apply(request)
+
+      status(result) must equalTo(NOT_FOUND)
+      val error = contentAsJson(result).as[ErrorMessage]
+      error.message must be equalTo "Application not Found"
+    }
+
+    "Return access token" in {
+      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+        .withAuthenticator(owner.loginInfo)
+
+      val controller = application.injector.instanceOf[Applications]
+      val result     = controller.applicationToken(notablesApp.id).apply(request)
+
+      status(result) must equalTo(OK)
+      val token = contentAsJson(result).as[AccessToken]
+      token.accessToken must not beEmpty
+    }
+  }
+   */
+}
+
+trait ApplicationsContext {
   val kind: ApplicationKind.Kind = App(
     url = "https://itunes.apple.com/gb/app/notables/id1338778866?mt=8",
     iosUrl = Some("https://itunes.apple.com/gb/app/notables/id1338778866?mt=8"),
@@ -352,232 +549,4 @@ class ApplicationsSpec
                 status = status
     )
 
-  class CustomisedFakeModule extends AbstractModule with ScalaModule {
-    override def configure(): Unit =
-      bind[TrustedApplicationProvider].toInstance(
-        new TestApplicationProvider(
-          Seq(
-            notablesApp
-          )
-        )
-      )
-
-    // bind[ApplicationStatusCheckService].toInstance(mockStatusChecker)
-    // bind[StatsReporter].toInstance(mockStatsReporter)
-  }
-
-  val application: PlayApplication = new GuiceApplicationBuilder()
-    .configure(conf)
-    .overrides(new FakeModule)
-    .overrides(new CustomisedFakeModule)
-    .build()
-
-//  implicit lazy val materializer: Materializer = application.materializer
-
-  val userService = application.injector.instanceOf[UsersService]
-  userService.saveUser(owner)
-  userService.saveUser(dataDebitUser)
-
-  val controller = application.injector.instanceOf[Authentication]
-
-  // ------------------------
-
-  // "The `user` method" should "return status 401 if no authenticator was found" in new WithApplication {
-  //   val request = FakeRequest()
-
-  //   val controller = application.injector.instanceOf[Authentication]
-  //   val result     = Helpers.call(controller.accessToken, request)
-
-  //   val r = Await.result(result, 10.seconds)
-  //   r must equal(UNAUTHORIZED)
-
-  // }
-
-  "The `applications` method" should "Return list of available applications" in new WithApplication {
-    val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-      .withAuthenticator(owner.loginInfo)
-
-    val controller = application.injector.instanceOf[Applications]
-    val result     = controller.applicationStatus("random-id").apply(request)
-
-    //status(result) must equal(NOT_FOUND)
-    val error = contentAsJson(result).as[ErrorMessage]
-    error.message must equal("Application not Found")
-
-    // val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-    //   .withAuthenticator(owner.loginInfo)
-
-    // implicit val applicationsService = application.injector.instanceOf[ApplicationsService]
-    // val controller                   = application.injector.instanceOf[Applications]
-
-    // val result = Helpers.call(controller.applications(), request)
-
-    // Helpers.status(result) must equal(OK)
-    // contentAsJson(result).validate[Seq[HatApplication]].isSuccess must equal(true)
-    // val apps = contentAsJson(result).as[Seq[HatApplication]]
-    // apps.length must equal(8)
-    // apps.find(_.application.id == notablesApp.id) must beSome
-    // apps.find(_.application.id == notablesAppDebitless.id) must beSome
-    // apps.find(_.application.id == notablesAppIncompatible.id) must beSome
-  }
-
-  /*
-  "The `applicationStatus` method" should {
-    "Return status of a single application" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withAuthenticator(owner.loginInfo)
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.applicationStatus(notablesApp.id).apply(request)
-
-      status(result) must equalTo(OK)
-      val app = contentAsJson(result).as[HatApplication]
-      app.application.info.name must be equalTo notablesApp.info.name
-    }
-
-    "Return 404 for a non-existent application" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withAuthenticator(owner.loginInfo)
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.applicationStatus("random-id").apply(request)
-
-      status(result) must equalTo(NOT_FOUND)
-      val error = contentAsJson(result).as[ErrorMessage]
-      error.message must be equalTo "Application not Found"
-    }
-  }
-
-  "The `hmi` method" should {
-    "Return the information about the specified application" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.hmi(notablesApp.id).apply(request)
-
-      status(result) must equalTo(OK)
-      val app = contentAsJson(result).as[Application]
-      app.id must beEqualTo(notablesApp.id)
-    }
-
-    "Return 404 for non-existend application" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.hmi("random-id").apply(request)
-
-      status(result) must equalTo(NOT_FOUND)
-      val error = contentAsJson(result).as[ErrorMessage]
-      error.cause must startWith("Application configuration for ID random-id could not be found")
-    }
-  }
-
-  "The `applicationSetup` method" should {
-    "Return setup application status" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withAuthenticator(owner.loginInfo)
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.applicationSetup(notablesApp.id).apply(request)
-
-      status(result) must equalTo(OK)
-      val app = contentAsJson(result).as[HatApplication]
-      app.application.info.name must be equalTo notablesApp.info.name
-      app.setup must be equalTo true
-      app.active must be equalTo true
-    }
-
-    "Return 404 for a non-existent application" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withAuthenticator(owner.loginInfo)
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.applicationSetup("random-id").apply(request)
-
-      status(result) must equalTo(BAD_REQUEST)
-      val error = contentAsJson(result).as[ErrorMessage]
-      error.message must be equalTo "Application not Found"
-    }
-  }
-
-  "The `applicationSetup` method" should {
-    "Return disabled application status" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withAuthenticator(owner.loginInfo)
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.applicationDisable(notablesApp.id).apply(request)
-
-      status(result) must equalTo(OK)
-      val app = contentAsJson(result).as[HatApplication]
-      app.application.info.name must be equalTo notablesApp.info.name
-      app.setup must be equalTo true
-      app.active must be equalTo false
-    }
-
-    "Return 404 for a non-existent application" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withAuthenticator(owner.loginInfo)
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.applicationDisable("random-id").apply(request)
-
-      status(result) must equalTo(BAD_REQUEST)
-      val error = contentAsJson(result).as[ErrorMessage]
-      error.message must be equalTo "Application not Found"
-    }
-  }
-
-  "The `applicationToken` method" should {
-    "Return 401 Forbidden for application token with no explicit permission" in {
-      val authenticator: HatApiAuthEnvironment#A =
-        FakeAuthenticator[HatApiAuthEnvironment](owner.loginInfo)
-          .copy(customClaims =
-            Some(
-              JsObject(
-                Map(
-                  "application" -> JsString("notables"),
-                  "applicationVersion" -> JsString("1.0.0")
-                )
-              )
-            )
-          )
-
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withAuthenticator[HatApiAuthEnvironment](authenticator)(environment)
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.applicationToken(notablesApp.id).apply(request)
-
-      status(result) must equalTo(FORBIDDEN)
-      logger.info(s"Got back result ${contentAsString(result)}")
-      val error = contentAsJson(result) \ "error"
-      error.get.as[String] must be equalTo "Forbidden"
-    }
-
-    "Return 404 for application that does not exist" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withAuthenticator(owner.loginInfo)
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.applicationToken("random-id").apply(request)
-
-      status(result) must equalTo(NOT_FOUND)
-      val error = contentAsJson(result).as[ErrorMessage]
-      error.message must be equalTo "Application not Found"
-    }
-
-    "Return access token" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withAuthenticator(owner.loginInfo)
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.applicationToken(notablesApp.id).apply(request)
-
-      status(result) must equalTo(OK)
-      val token = contentAsJson(result).as[AccessToken]
-      token.accessToken must not beEmpty
-    }
-  }
-   */
 }

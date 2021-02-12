@@ -131,7 +131,6 @@ class Applications @Inject() (
           )
         }
       }
-
     }
 
   def applicationSetup(id: String): Action[AnyContent] =
