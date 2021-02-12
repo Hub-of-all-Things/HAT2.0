@@ -132,19 +132,14 @@ class Authentication @Inject() (
       "If the email you have entered is correct and your HAT is not validated, you will receive an email with a link to validate your HAT."
     )
 
-  def publicKey(): EssentialAction = {
-    println("AAA")
+  def publicKey(): EssentialAction =
     indefiniteSuccessCaching {
-      println("BBB")
       UserAwareAction.async { implicit request =>
-        println("CCC")
         val publicKey =
           hatServerProvider.toString(request.dynamicEnvironment.publicKey)
-        println("DDD")
         Future.successful(Ok(publicKey))
       }
     }
-  }
 
   // TODO: Should this remove tokens?
   def validateToken(): Action[AnyContent] =
@@ -201,19 +196,16 @@ class Authentication @Inject() (
   def accessToken(): Action[AnyContent] =
     (UserAwareAction andThen limiter.UserAwareRateLimit).async { implicit request =>
       // pull details from the headers
-      println("2222")
       val eventuallyAuthenticatedUser = for {
         usernameParam <- request.headers.get("username")
         passwordParam <- request.headers.get("password")
       } yield {
-        println("333")
         val username = URLDecoder.decode(usernameParam, "UTF-8")
         val password = URLDecoder.decode(passwordParam, "UTF-8")
         credentialsProvider
           .authenticate(Credentials(username, password))
           .map(_.copy(request.dynamicEnvironment.id))
           .flatMap { loginInfo =>
-            println("444")
             usersService.getUser(loginInfo.providerKey).flatMap {
               // If we find a user, create and return an access token (JWT)
               case Some(user) =>

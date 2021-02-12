@@ -96,17 +96,8 @@ class PhataSpec extends BaseSpec with ContainerUtils with PhataContext with ForA
                           enabled = true
   )
 
-  val owner2 = new HatUser(userId = java.util.UUID.randomUUID(),
-                           email = "hat@example.com",
-                           pass = None,
-                           name = "hat",
-                           roles = Seq.empty,
-                           enabled = true
-  )
-
   val userService = application.injector.instanceOf[UsersService]
   userService.saveUser(owner)
-  userService.saveUser(owner2)
 
   implicit val env: Environment[HatApiAuthEnvironment] =
     FakeEnvironment[HatApiAuthEnvironment](Seq(owner.loginInfo -> owner), hatServer)

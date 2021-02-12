@@ -30,12 +30,7 @@ import org.hatdex.hat.api.json.ApplicationJsonProtocol
 import org.hatdex.hat.api.models._
 import org.hatdex.hat.api.service.applications.ApplicationsService
 import org.hatdex.hat.api.service.richData.RichDataDuplicateBundleException
-import org.hatdex.hat.authentication.{
-  ContainsApplicationRole,
-  HatApiAuthEnvironment,
-  HatApiController,
-  WithRole
-}
+import org.hatdex.hat.authentication.{ ContainsApplicationRole, HatApiAuthEnvironment, HatApiController, WithRole }
 import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
@@ -51,10 +46,7 @@ class Applications @Inject() (
     extends HatApiController(components, silhouette)
     with ApplicationJsonProtocol {
 
-  import org.hatdex.hat.api.json.HatJsonFormats.{
-    accessTokenFormat,
-    errorMessage
-  }
+  import org.hatdex.hat.api.json.HatJsonFormats.{ accessTokenFormat, errorMessage }
 
   val logger: Logger = Logger(this.getClass)
 
@@ -81,27 +73,25 @@ class Applications @Inject() (
     SecuredAction(
       ContainsApplicationRole(Owner(), ApplicationList()) || WithRole(Owner())
     ).async { implicit request =>
+      println("applications-1")
       for {
         apps <- applicationsService.applicationStatus()
         filterApps <- ContainsApplicationRole(ApplicationList()).isAuthorized(
-          request.identity,
-          request.authenticator,
-          request.dynamicEnvironment
-        )
-        maybeApp <-
-          request.authenticator.customClaims
-            .flatMap(customClaims =>
-              (customClaims \ "application").asOpt[String]
-            )
-            .map(app =>
-              applicationsService.applicationStatus(app)(
-                request.dynamicEnvironment,
-                request.identity,
-                request
-              )
-            )
-            .getOrElse(Future.successful(None))
-      } yield {
+                        request.identity,
+                        request.authenticator,
+                        request.dynamicEnvironment
+                      )
+        maybeApp <- request.authenticator.customClaims
+                      .flatMap(customClaims => (customClaims \ "application").asOpt[String])
+                      .map(app =>
+                        applicationsService.applicationStatus(app)(
+                          request.dynamicEnvironment,
+                          request.identity,
+                          request
+                        )
+                      )
+                      .getOrElse(Future.successful(None))
+      } yield
         if (filterApps) {
           val permitted = maybeApp
             .map(
@@ -115,17 +105,15 @@ class Applications @Inject() (
 
           val filtered = apps.filter(a => permitted.contains(a.application.id))
           Ok(Json.toJson(filtered))
-        } else {
+        } else
           Ok(Json.toJson(apps))
-        }
-      }
     }
 
   def applicationStatus(id: String): Action[AnyContent] =
     SecuredAction(
       ContainsApplicationRole(Owner(), ApplicationManage(id)) || WithRole(
-        Owner()
-      )
+          Owner()
+        )
     ).async { implicit request =>
       val bustCache = request.headers.get("Cache-Control").contains("no-cache")
       logger.info(s"Getting app $id status (bust cache: $bustCache)")
@@ -149,8 +137,8 @@ class Applications @Inject() (
   def applicationSetup(id: String): Action[AnyContent] =
     SecuredAction(
       ContainsApplicationRole(Owner(), ApplicationManage(id)) || WithRole(
-        Owner()
-      )
+          Owner()
+        )
     ).async { implicit request =>
       applicationsService.applicationStatus(id).flatMap { maybeStatus =>
         maybeStatus map { status =>
@@ -190,8 +178,8 @@ class Applications @Inject() (
   def applicationDisable(id: String): Action[AnyContent] =
     SecuredAction(
       ContainsApplicationRole(Owner(), ApplicationManage(id)) || WithRole(
-        Owner()
-      )
+          Owner()
+        )
     ).async { implicit request =>
       applicationsService.applicationStatus(id).flatMap { maybeStatus =>
         maybeStatus map { status =>
