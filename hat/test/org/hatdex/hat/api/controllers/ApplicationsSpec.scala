@@ -75,6 +75,7 @@ import org.hatdex.hat.FakeCache
 import com.google.inject.Provides
 import play.api.test.Helpers
 import play.api.test.Helpers._
+import scala.concurrent.Future
 
 class ApplicationsSpec
     extends BaseSpec
@@ -189,41 +190,43 @@ class ApplicationsSpec
     val result     = controller.applications().apply(request)
 
     Helpers.status(result) must equal(OK)
-    // contentAsJson(result).validate[Seq[HatApplication]].isSuccess must equal(true)
-    // val apps = contentAsJson(result).as[Seq[HatApplication]]
+    //Helpers.contentAsJson(result).validate[Seq[HatApplication]].isSuccess must equal(true)
+
+    //val bodyAsJson   = Helpers.contentAsJson(result).as[Seq[HatApplication]]
+
+    //Helpers.contentAsJson(result).as[Seq[HatApplication]]
     // apps.length must equal(8)
-    // apps.find(_.application.id == notablesApp.id) must beSome
-    // apps.find(_.application.id == notablesAppDebitless.id) must beSome
-    // apps.find(_.application.id == notablesAppIncompatible.id) must beSome
+    // apps.find(_.application.id == notablesApp.id) must be('defined)
+    // apps.find(_.application.id == notablesAppDebitless.id) must be('defined)
+    // apps.find(_.application.id == notablesAppIncompatible.id) must be('defined)
+
+  }
+
+  "The `applicationStatus` method" should "Return status of a single application" in {
+    val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+      .withAuthenticator(owner.loginInfo)
+
+    val controller = application.injector.instanceOf[Applications]
+    val result     = controller.applicationStatus(notablesApp.id).apply(request)
+
+    Helpers.status(result) must equal(OK)
+    // val app = contentAsJson(result).as[HatApplication]
+    // app.application.info.name must be equalTo notablesApp.info.name
+  }
+
+  it should "Return 404 for a non-existent application" in {
+    val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+      .withAuthenticator(owner.loginInfo)
+
+    val controller = application.injector.instanceOf[Applications]
+    val result     = controller.applicationStatus("random-id").apply(request)
+
+    Helpers.status(result) must equal(NOT_FOUND)
+    // val error = contentAsJson(result).as[ErrorMessage]
+    // error.message must be equalTo "Application not Found"
   }
 
   /*
-  "The `applicationStatus` method" should {
-    "Return status of a single application" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withAuthenticator(owner.loginInfo)
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.applicationStatus(notablesApp.id).apply(request)
-
-      status(result) must equalTo(OK)
-      val app = contentAsJson(result).as[HatApplication]
-      app.application.info.name must be equalTo notablesApp.info.name
-    }
-
-    "Return 404 for a non-existent application" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-        .withAuthenticator(owner.loginInfo)
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.applicationStatus("random-id").apply(request)
-
-      status(result) must equalTo(NOT_FOUND)
-      val error = contentAsJson(result).as[ErrorMessage]
-      error.message must be equalTo "Application not Found"
-    }
-  }
-
   "The `hmi` method" should {
     "Return the information about the specified application" in {
       val request = FakeRequest("GET", "http://hat.hubofallthings.net")
