@@ -226,18 +226,17 @@ class ApplicationsSpec
     // error.message must be equalTo "Application not Found"
   }
 
+  "The `hmi` method" should "Return the information about the specified application" in {
+    val request = FakeRequest("GET", "http://hat.hubofallthings.net")
+
+    val controller = application.injector.instanceOf[Applications]
+    val result     = controller.hmi(notablesApp.id).apply(request)
+
+    Helpers.status(result) must equal(OK)
+    //val app = contentAsJson(result).as[Application]
+    //app.id must beEqual(notablesApp.id)
+  }
   /*
-  "The `hmi` method" should {
-    "Return the information about the specified application" in {
-      val request = FakeRequest("GET", "http://hat.hubofallthings.net")
-
-      val controller = application.injector.instanceOf[Applications]
-      val result     = controller.hmi(notablesApp.id).apply(request)
-
-      status(result) must equalTo(OK)
-      val app = contentAsJson(result).as[Application]
-      app.id must beEqualTo(notablesApp.id)
-    }
 
     "Return 404 for non-existend application" in {
       val request = FakeRequest("GET", "http://hat.hubofallthings.net")

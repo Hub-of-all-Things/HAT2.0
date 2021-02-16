@@ -49,12 +49,13 @@ import play.core.server.Server
 
 import scala.concurrent.Future
 
-trait ApplicationsServiceContext extends HATTestContext {
-  override lazy val application: PlayApplication = new GuiceApplicationBuilder()
-    .configure(FakeHatConfiguration.config)
-    .overrides(new FakeModule)
-    .overrides(new CustomisedFakeModule)
-    .build()
+trait ApplicationsServiceContext { //extends HATTestContext {
+
+  // override lazy val application: PlayApplication = new GuiceApplicationBuilder()
+  //   .configure(FakeHatConfiguration.config)
+  //   .overrides(new FakeModule)
+  //   .overrides(new CustomisedFakeModule)
+  //   .build()
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -356,26 +357,26 @@ trait ApplicationsServiceContext extends HATTestContext {
       }
     }
 
-    val mockStatusChecker = mock[ApplicationStatusCheckService]
-    mockStatusChecker.status(any[ApplicationStatus.Internal], any[String]) returns Future
-      .successful(true)
-    when(mockStatusChecker.status(any[ApplicationStatus.Status], any[String]))
-      .thenAnswer(StatusCheck())
+    // val mockStatusChecker = mock[ApplicationStatusCheckService]
+    // mockStatusChecker.status(any[ApplicationStatus.Internal], any[String]) returns Future
+    //   .successful(true)
+    // when(mockStatusChecker.status(any[ApplicationStatus.Status], any[String]))
+    //   .thenAnswer(StatusCheck())
 
-    mockStatusChecker
+    // mockStatusChecker
 
   }
 
   lazy val mockStatsReporter = {
-    val mockStatsReporter = mock[StatsReporter]
-    mockStatsReporter.registerOwnerConsent(any[String])(any[HatServer]) returns Future
-      .successful(Done)
+    // val mockStatsReporter = mock[StatsReporter]
+    // mockStatsReporter.registerOwnerConsent(any[String])(any[HatServer]) returns Future
+    //   .successful(Done)
 
-    mockStatsReporter
+    // mockStatsReporter
   }
 
   class CustomisedFakeModule extends AbstractModule with ScalaModule {
-    override def configure(): Unit = {
+    override def configure(): Unit =
       bind[TrustedApplicationProvider].toInstance(
         new TestApplicationProvider(
           Seq(
@@ -391,12 +392,11 @@ trait ApplicationsServiceContext extends HATTestContext {
         )
       )
 
-      bind[ApplicationStatusCheckService].toInstance(mockStatusChecker)
-      bind[StatsReporter].toInstance(mockStatsReporter)
-    }
+    //bind[ApplicationStatusCheckService].toInstance(mockStatusChecker)
+    //bind[StatsReporter].toInstance(mockStatsReporter)
   }
 
   implicit val fakeRequest: RequestHeader =
     FakeRequest("GET", "http://hat.hubofallthings.net")
-  implicit val ownerImplicit: HatUser = owner
+  //implicit val ownerImplicit: HatUser = owner
 }

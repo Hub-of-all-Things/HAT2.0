@@ -47,8 +47,8 @@ import org.hatdex.hat.phata.models.MailTokenUser
 import org.hatdex.hat.resourceManagement.{ FakeHatConfiguration, FakeHatServerProvider, HatServer, HatServerProvider }
 import org.hatdex.hat.utils.{ ErrorHandler, HatMailer, LoggingProvider, MockLoggingProvider }
 import org.hatdex.libs.dal.HATPostgresProfile.backend.Database
-import org.specs2.mock.Mockito
-import org.specs2.specification.Scope
+// import org.specs2.mock.Mockito
+// import org.specs2.specification.Scope
 import play.api.cache.AsyncCacheApi
 import play.api.http.HttpErrorHandler
 import play.api.i18n.{ Lang, Messages, MessagesApi }
@@ -60,7 +60,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{ Await, Future }
 import java.sql.Connection
 
-trait HATTestContext extends Scope with Mockito {
+trait HATTestContext { //extends Scope with Mockito {
   import scala.concurrent.ExecutionContext.Implicits.global
   // Initialize configuration
   val hatAddress            = "hat.hubofallthings.net"
@@ -158,12 +158,12 @@ trait HATTestContext extends Scope with Mockito {
       }
   }
 
-  val mockMailer: HatMailer = mock[HatMailer]
-  doReturn(Done).when(mockMailer).passwordReset(any[String], any[String])(any[MessagesApi], any[Lang], any[HatServer])
+  // val mockMailer: HatMailer = mock[HatMailer]
+  // doReturn(Done).when(mockMailer).passwordReset(any[String], any[String])(any[MessagesApi], any[Lang], any[HatServer])
 
   val fileManagerS3Mock = FileManagerS3Mock()
 
-  val mockLogger = mock[Logger]
+  //val mockLogger = mock[Logger]
 
   lazy val remoteEC = new RemoteExecutionContext(application.actorSystem)
 
@@ -177,11 +177,11 @@ trait HATTestContext extends Scope with Mockito {
       bind[HatServerProvider].toInstance(new FakeHatServerProvider(hatServer))
       bind[FileManager].to[FileManagerS3]
       bind[MailTokenService[MailTokenUser]].to[MailTokenUserService]
-      bind[HatMailer].toInstance(mockMailer)
+      //bind[HatMailer].toInstance(mockMailer)
       bind[HttpErrorHandler].to[ErrorHandler]
       bind[AsyncCacheApi].annotatedWith(new NamedCacheImpl("user-cache")).to[FakeCache]
       bind[AsyncCacheApi].to[FakeCache]
-      bind[LoggingProvider].toInstance(new MockLoggingProvider(mockLogger))
+      //bind[LoggingProvider].toInstance(new MockLoggingProvider(mockLogger))
     }
 
     @Provides

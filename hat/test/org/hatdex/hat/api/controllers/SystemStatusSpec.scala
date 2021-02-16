@@ -24,37 +24,41 @@
 
 package org.hatdex.hat.api.controllers
 
-import com.mohiva.play.silhouette.test._
-import org.hatdex.hat.api.json.HatJsonFormats
-import org.hatdex.hat.api.models.{ HatStatus, StatusKind }
-import play.api.Logger
-import play.api.test.{ FakeRequest }
-import org.hatdex.hat.resourceManagement.{ FakeHatConfiguration, HatServer }
-import scala.concurrent.duration._
+import java.io.StringReader
+
 import scala.concurrent.{ Await }
-import org.scalatest._
-import matchers.should._
-import flatspec._
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.{ Logger, Application => PlayApplication }
-import play.api.test.Helpers._
-import play.api.test.FakeRequest
-import org.hatdex.hat.api.models.{ Owner, Platform => DSPlatform }
+import scala.concurrent.duration._
+
 import akka.stream.Materializer
 import com.atlassian.jwt.core.keys.KeyUtils
-import scala.concurrent.{ Await }
-import scala.concurrent.duration._
-import org.hatdex.hat.authentication.models.HatUser
-import play.api.Configuration
-import java.io.StringReader
-import com.dimafeng.testcontainers.{ ForAllTestContainer, PostgreSQLContainer }
-import org.hatdex.hat.helpers.{ ContainerUtils }
-import org.hatdex.libs.dal.HATPostgresProfile.backend.Database
+import com.dimafeng.testcontainers.ForAllTestContainer
+import com.dimafeng.testcontainers.PostgreSQLContainer
 import com.mohiva.play.silhouette.api.Environment
 import com.mohiva.play.silhouette.test._
-import org.hatdex.hat.authentication.HatApiAuthEnvironment
+import com.mohiva.play.silhouette.test._
+import org.hatdex.hat.api.json.HatJsonFormats
+//import org.hatdex.hat.api.models.HatStatus
+import org.hatdex.hat.api.models.Owner
+//import org.hatdex.hat.api.models.StatusKind
+import org.hatdex.hat.api.models.{ Platform => DSPlatform }
 import org.hatdex.hat.api.service.UsersService
+import org.hatdex.hat.authentication.HatApiAuthEnvironment
+import org.hatdex.hat.authentication.models.HatUser
+import org.hatdex.hat.helpers.{ ContainerUtils }
+import org.hatdex.hat.resourceManagement.FakeHatConfiguration
+import org.hatdex.hat.resourceManagement.HatServer
+import org.hatdex.libs.dal.HATPostgresProfile.backend.Database
+import org.scalatest._
+import play.api.Configuration
+import play.api.Logger
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.{ FakeRequest }
 import play.api.test.Helpers
+import play.api.test.Helpers._
+import play.api.{ Application => PlayApplication }
+
+import matchers.should._
+import flatspec._
 
 class SystemStatusSpec
     extends AnyFlatSpec
@@ -104,8 +108,6 @@ class SystemStatusSpec
     .configure(FakeHatConfiguration.config)
     .build()
 
-  println(owner.loginInfo)
-
   implicit lazy val materializer: Materializer = application.materializer
 
   // I need a before
@@ -118,7 +120,6 @@ class SystemStatusSpec
   val userService = application.injector.instanceOf[UsersService]
   userService.saveUser(owner)
 
-  /*
   "The `update` method" should "Return success response after updating HAT database" in {
     val request = FakeRequest("GET", "http://hat.hubofallthings.net")
 
@@ -130,6 +131,7 @@ class SystemStatusSpec
     //(contentAsJson(response.body) \ "message").as[String] should equal("Database updated")
   }
 
+  /*
   "The `status` method" should "Return current utilisation" in {
     implicit val environment: Environment[HatApiAuthEnvironment] =
       FakeEnvironment[HatApiAuthEnvironment](Seq(owner.loginInfo -> owner), hatServer)
@@ -154,9 +156,8 @@ class SystemStatusSpec
     stats.find(_.title == "Database Storage Used Share").get.kind shouldBe a[StatusKind.Numeric]
     stats.find(_.title == "File Storage Used Share").get.kind shouldBe a[StatusKind.Numeric]
   }
-   */
 
-  /*
+
   it should "Return last login information when present" in {
     val authRequest = FakeRequest("GET", hatUrl)
       .withHeaders("username" -> "hat", "password" -> "pa55w0rd")

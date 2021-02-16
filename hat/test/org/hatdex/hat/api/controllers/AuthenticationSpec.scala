@@ -24,74 +24,66 @@
 
 package org.hatdex.hat.api.controllers
 
-import com.mohiva.play.silhouette.test._
-import org.hatdex.hat.authentication.models.HatUser
-import org.hatdex.hat.phata.models.{ ApiPasswordChange, ApiPasswordResetRequest, ApiValidationRequest, MailTokenUser }
-import org.hatdex.hat.resourceManagement.HatServer
-import play.api.Logger
-import org.scalatest._
-import matchers.should._
-import flatspec._
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.{ Logger, Application => PlayApplication }
-import play.api.test.Helpers._
-import play.api.test.FakeRequest
-import org.hatdex.hat.api.models.{ Owner, Platform => DSPlatform, DataDebitOwner }
-import akka.stream.Materializer
-import com.atlassian.jwt.core.keys.KeyUtils
+import java.io.StringReader
+
 import scala.concurrent.{ Await }
 import scala.concurrent.duration._
-import org.hatdex.hat.authentication.models.HatUser
-import play.api.Configuration
-import java.io.StringReader
-import com.dimafeng.testcontainers.{ ForAllTestContainer, PostgreSQLContainer }
-import org.hatdex.hat.helpers.{ ContainerUtils }
-import org.hatdex.libs.dal.HATPostgresProfile.backend.Database
+
+import com.atlassian.jwt.core.keys.KeyUtils
+import com.dimafeng.testcontainers.ForAllTestContainer
+import com.dimafeng.testcontainers.PostgreSQLContainer
+import com.google.inject.AbstractModule
+import com.google.inject.Provides
 import com.mohiva.play.silhouette.api.Environment
-import com.mohiva.play.silhouette.test._
-import org.hatdex.hat.authentication.HatApiAuthEnvironment
-import play.api.test.Helpers
-import play.api.test.{ FakeRequest }
-import org.hatdex.hat.resourceManagement.{ FakeHatConfiguration, HatServer }
-import scala.concurrent.{ Await }
-import org.hatdex.hat.api.service.UsersService
-import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import io.dataswift.test.common.BaseSpec
 import com.mohiva.play.silhouette.api.LoginInfo
-import java.util.concurrent.Future
-import play.api.mvc.Result
 import com.mohiva.play.silhouette.api.crypto.Base64AuthenticatorEncoder
 import com.mohiva.play.silhouette.impl.authenticators.JWTRS256AuthenticatorSettings
-import com.mohiva.play.silhouette.impl.authenticators.JWTRS256Authenticator
-import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
-import play.api.libs.json.Json
-import play.api.test.WithApplication
-import com.google.inject.AbstractModule
+import com.mohiva.play.silhouette.test._
+import com.mohiva.play.silhouette.test._
+import io.dataswift.test.common.BaseSpec
 import net.codingwell.scalaguice.ScalaModule
-import play.libs.akka.AkkaGuiceSupport
-import org.hatdex.hat.resourceManagement.actors.HatServerProviderActor
-import org.mockito.Mockito
-import org.hatdex.hat.resourceManagement.actors.HatServerActor
+import org.hatdex.hat.FakeCache
+import org.hatdex.hat.api.models.DataDebitOwner
+import org.hatdex.hat.api.models.Owner
+import org.hatdex.hat.api.models.{ Platform => DSPlatform }
+import org.hatdex.hat.api.service.MailTokenUserService
+import org.hatdex.hat.api.service.UsersService
+import org.hatdex.hat.api.service.applications.TestApplicationProvider
+import org.hatdex.hat.api.service.applications.TrustedApplicationProvider
+import org.hatdex.hat.authentication.HatApiAuthEnvironment
+import org.hatdex.hat.authentication.models.HatUser
+import org.hatdex.hat.helpers.{ ContainerUtils }
+import org.hatdex.hat.phata.models.ApiPasswordChange
+import org.hatdex.hat.phata.models.ApiPasswordResetRequest
+import org.hatdex.hat.phata.models.ApiValidationRequest
+import org.hatdex.hat.phata.models.MailTokenUser
 import org.hatdex.hat.resourceManagement.HatDatabaseProvider
 import org.hatdex.hat.resourceManagement.HatDatabaseProviderConfig
-import org.hatdex.hat.resourceManagement.HatKeyProviderConfig
 import org.hatdex.hat.resourceManagement.HatKeyProvider
-import play.api.cache.AsyncCacheApi
-import org.hatdex.hat.FakeCache
-import org.hatdex.hat.api.service.applications.TrustedApplicationProvider
-import org.hatdex.hat.api.service.applications.TestApplicationProvider
-import com.google.inject.Provides
+import org.hatdex.hat.resourceManagement.HatKeyProviderConfig
+import org.hatdex.hat.resourceManagement.HatServer
+import org.hatdex.hat.resourceManagement.HatServerProvider
+import org.hatdex.hat.resourceManagement.HatServerProviderImpl
 import org.hatdex.hat.utils.LoggingProvider
 import org.hatdex.hat.utils.MockLoggingProvider
-import org.hatdex.hat.resourceManagement.HatServerProviderImpl
-import org.hatdex.hat.resourceManagement.HatServerProvider
+import org.hatdex.libs.dal.HATPostgresProfile.backend.Database
+import org.joda.time.DateTime
+import org.scalatest._
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.libs.json.JsValue
-import play.api.test.FakeHeaders
+import play.api.Configuration
+import play.api.Logger
+import play.api.cache.AsyncCacheApi
 import play.api.http.HeaderNames
 import play.api.http.MimeTypes
-import org.hatdex.hat.api.service.MailTokenUserService
-import org.joda.time.DateTime
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+import play.api.test.FakeHeaders
+import play.api.test.FakeRequest
+import play.api.test.Helpers
+import play.api.test.Helpers._
+import play.api.{ Application => PlayApplication }
+import play.libs.akka.AkkaGuiceSupport
 
 class AuthenticationSpec
     extends BaseSpec
@@ -103,6 +95,7 @@ class AuthenticationSpec
   import scala.concurrent.ExecutionContext.Implicits.global
   val logger = Logger(this.getClass)
 
+  // split this out
   class FakeModule extends AbstractModule with ScalaModule with AkkaGuiceSupport {
     override def configure(): Unit = {
       // bindActor[HatServerProviderActor]("hatServerProviderActor")
