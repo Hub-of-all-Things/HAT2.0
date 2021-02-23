@@ -157,22 +157,14 @@ class FilesSpec extends BaseSpec with BeforeAndAfterEach with BeforeAndAfterAll 
     val result = for {
       saveResult <- fileMetadataService.save(hatFileSimple)
       result <- controller.completeUpload("testFile").apply(request)
-    } yield (result, saveResult)
+    } yield result
 
-    val r = Await.result(result, 10.seconds)
+    // val r = Await.result(result, 10.seconds)
+    // r._1.header.status must equal(OK)
 
-    println("--------------")
-    println(r)
-    println("--------------")
-
-    r._1.header.status must equal(OK)
-
-    // status(result) must equal(OK)
-    // val file = contentAsJson(result).as[ApiHatFile]
-    // println("--------------")
-    // println(file)
-    // println("--------------")
-    // file.status === (HatFileStatus.Completed(123456L))
+    status(result) must equal(OK)
+    val file = contentAsJson(result).as[ApiHatFile]
+    file.status === (HatFileStatus.Completed(123456L))
   }
 
   "The `getDetail` method" should "return status 401 if authenticator but no identity was found" in {

@@ -24,28 +24,24 @@
 
 package org.hatdex.hat.api.service.applications
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
+import akka.Done
 import com.mohiva.play.silhouette.api.crypto.Base64AuthenticatorEncoder
 import com.mohiva.play.silhouette.impl.authenticators.{ JWTRS256Authenticator, JWTRS256AuthenticatorSettings }
+import io.dataswift.test.common.BaseSpec
 import org.hatdex.hat.api.models.EndpointData
 import org.hatdex.hat.api.models.applications.{ ApplicationStatus, HatApplication, Version }
-import org.hatdex.hat.api.service.applications.ApplicationExceptions.{
-  HatApplicationDependencyException,
-  HatApplicationSetupException
-}
+import org.hatdex.hat.api.service.applications.ApplicationExceptions.HatApplicationSetupException
 import org.hatdex.hat.api.service.richData.{ DataDebitService, RichDataService }
 import org.hatdex.hat.utils.AdjudicatorRequestTypes.JoinContractRequestFailure.ServiceRespondedWithFailure
 import org.joda.time.DateTime
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import play.api.Logger
 import play.api.cache.AsyncCacheApi
 import play.api.libs.json._
-import akka.Done
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import io.dataswift.test.common.BaseSpec
-import org.scalatest.{ BeforeAndAfterEach, BeforeAndAfterAll }
-import play.api.test.Helpers
-import play.api.test.Helpers._
 
 class ApplicationsServiceSpec
     extends BaseSpec
@@ -68,8 +64,9 @@ class ApplicationsServiceSpec
     import org.hatdex.libs.dal.HATPostgresProfile.api._
 
     val action = DBIO.seq(
+      Tables.SheFunction.delete,
       Tables.DataDebitPermissions.delete,
-      Tables.DataBundles.filter(_.bundleId like "notables%").delete,
+      Tables.DataBundles.delete,
       Tables.DataDebit.delete,
       Tables.ApplicationStatus.delete
     )
@@ -329,7 +326,7 @@ class ApplicationsServiceSpec
       app <- service.applicationStatus(notablesAppDebitless.id)
       _ <- service.setup(app.get)
       setup <- service.disable(app.get)
-    } yield setup.active must equal(true)
+    } yield setup.active must equal(false)
 
     Await.result(result, 10.seconds)
   }
@@ -413,11 +410,11 @@ class ApplicationsServiceSpec
       val service = application.injector.instanceOf[ApplicationsService]
 
       val result = for {
-        _ <- service.joinContract(fakeContract, "hatName")
+        contractApp <- service.joinContract(fakeContract, "hatName")
         notablesApp <- service.joinContract(notablesApp, "hatName")
       } yield {
         notablesApp must equal(Done)
-        //contractApp must beLeft(ServiceRespondedWithFailure("The Adjudicator Service responded with an error: Internal Server Error"))
+        contractApp must equal(Left(ServiceRespondedWithFailure("The Adjudicator Service responded with an error: Internal Server Error")))
       }
       Await.result(result, 10.seconds)
     }
