@@ -355,7 +355,7 @@ trait DataDebitServiceSpecContext extends RichBundleServiceContext {
     None,
     Some("Detailed description of the data debit"),
     "http://client.com/terms.html",
-    Some(conditionsBundle),
+    Some(conditionsBundleA),
     testBundleA
   )
 
@@ -372,7 +372,7 @@ trait DataDebitServiceSpecContext extends RichBundleServiceContext {
     None,
     Some("Detailed description of the data debit"),
     "http://client.com/terms.html",
-    Some(conditionsBundle2),
+    Some(conditionsBundleB),
     testBundleB
   )
 

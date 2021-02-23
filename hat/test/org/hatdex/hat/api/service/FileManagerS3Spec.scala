@@ -26,7 +26,6 @@ package org.hatdex.hat.api.service
 
 import org.hatdex.hat.api.HATTestContext
 import play.api.Logger
-import play.api.test.PlaySpecification
 
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
@@ -64,7 +63,9 @@ class FileManagerS3Spec extends BaseSpec with BeforeAndAfterEach with BeforeAndA
         logger.info("This should not throw an exception.")
         fail
       case _ =>
-      //there was one(mockS3client).deleteObject("hat-storage-test", "hat.hubofallthings.net/deleteFile")
+        // CalledMatchers are part of specs2
+        //there was one(mockS3client).deleteObject("hat-storage-test", "hat.hubofallthings.net/deleteFile")
+        true
     }
   }
 
@@ -82,6 +83,7 @@ class FileManagerS3Spec extends BaseSpec with BeforeAndAfterEach with BeforeAndA
 
     val r = Await.result(result, 10.seconds)
     r must equal(123456L)
+    // CalledMatchers are part of specs2
     //there was one(mockS3client).getObjectMetadata("hat-storage-test", "hat.hubofallthings.net/testFile")
   }
 }
