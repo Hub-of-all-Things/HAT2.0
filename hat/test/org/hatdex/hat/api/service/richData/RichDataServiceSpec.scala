@@ -52,7 +52,8 @@ class RichDataStreamingServiceSpec
   override def beforeAll: Unit =
     Await.result(databaseReady, 60.seconds)
 
-  override protected def afterAll(): Unit = container.close()
+  override def afterAll() =
+    container.stop()
 
   override def beforeEach: Unit = {
     import org.hatdex.hat.dal.Tables._

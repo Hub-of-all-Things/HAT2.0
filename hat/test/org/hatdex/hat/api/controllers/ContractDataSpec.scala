@@ -46,6 +46,9 @@ class ContractDataSpec extends BaseSpec with BeforeAndAfter with BeforeAndAfterA
   override def beforeAll: Unit =
     Await.result(databaseReady, 60.seconds)
 
+  override def afterAll() =
+    container.stop()
+
   "The Save Contract method" should "Return 400 on an empty request" in {
     val request = FakeRequest("POST", "http://hat.hubofallthings.net")
       .withJsonBody(emptyRequestBody)

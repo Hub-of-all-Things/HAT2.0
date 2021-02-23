@@ -59,8 +59,6 @@ import scala.concurrent.duration._
 import scala.concurrent.{ Await, Future }
 import org.mockito.ArgumentMatchers.{ any }
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterAll
-
 //import io.dataswift.integrationtest.common.PostgresqlSpec
 import org.scalatestplus.mockito.MockitoSugar
 
@@ -147,8 +145,6 @@ trait HATTestContext extends MockitoSugar {
 
   // Build up the FakeEnvironment for authentication testing
   private val keyUtils = new KeyUtils()
-  // implicit protected def hatDatabase: Database =
-  //   Database.forConfig("", hatConfig.get[Configuration]("database").underlying)
   implicit val hatServer: HatServer = HatServer(
     hatAddress,
     "hat",

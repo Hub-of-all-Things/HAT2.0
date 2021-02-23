@@ -61,6 +61,9 @@ class AuthenticationSpec extends BaseSpec with BeforeAndAfter with BeforeAndAfte
   override def beforeAll: Unit =
     Await.result(databaseReady, 60.seconds)
 
+  override def afterAll() =
+    container.stop()
+
   "The `publicKey` method" should "Return public key of the HAT" in {
     val request = FakeRequest("GET", "http://hat.hubofallthings.net")
 

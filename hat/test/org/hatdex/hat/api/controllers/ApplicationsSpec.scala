@@ -55,6 +55,9 @@ class ApplicationsSpec extends BaseSpec with BeforeAndAfter with BeforeAndAfterA
     Await.result(db.run(action), 60.seconds)
   }
 
+  override def afterAll() =
+    container.stop()
+
   import ApplicationJsonProtocol._
   import org.hatdex.hat.api.json.HatJsonFormats.{ accessTokenFormat, errorMessage }
 

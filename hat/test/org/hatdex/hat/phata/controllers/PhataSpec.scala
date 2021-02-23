@@ -51,7 +51,10 @@ class PhataSpec extends BaseSpec with BeforeAndAfterEach with BeforeAndAfterAll 
   override def beforeAll: Unit =
     Await.result(databaseReady, 60.seconds)
 
-  override def before: Unit = {
+  override def afterAll() =
+    container.stop()
+
+  override def beforeEach: Unit = {
     import org.hatdex.hat.dal.Tables._
     import org.hatdex.libs.dal.HATPostgresProfile.api._
 

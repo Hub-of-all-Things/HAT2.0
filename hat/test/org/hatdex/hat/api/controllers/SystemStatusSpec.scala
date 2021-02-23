@@ -51,6 +51,9 @@ class SystemStatusSpec
   override def beforeAll: Unit =
     Await.result(databaseReady, 60.seconds)
 
+  override def afterAll() =
+    container.stop()
+
   "The `update` method" should "Return success response after updating HAT database" in {
     val request = FakeRequest("GET", "http://hat.hubofallthings.net")
 

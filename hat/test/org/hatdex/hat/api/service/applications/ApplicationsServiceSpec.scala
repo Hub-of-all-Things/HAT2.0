@@ -43,13 +43,13 @@ import akka.Done
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import io.dataswift.test.common.BaseSpec
-import org.scalatest.{ BeforeAndAfter, BeforeAndAfterAll }
+import org.scalatest.{ BeforeAndAfterEach, BeforeAndAfterAll }
 import play.api.test.Helpers
 import play.api.test.Helpers._
 
 class ApplicationsServiceSpec
     extends BaseSpec
-    with BeforeAndAfter
+    with BeforeAndAfterEach
     with BeforeAndAfterAll
     with ApplicationsServiceContext {
 
@@ -59,7 +59,11 @@ class ApplicationsServiceSpec
   override def beforeAll: Unit =
     Await.result(databaseReady, 60.seconds)
 
-  override def before: Unit = {
+  override def afterAll() =
+    container.stop()
+
+
+  override def beforeEach: Unit = {
     import org.hatdex.hat.dal.Tables
     import org.hatdex.libs.dal.HATPostgresProfile.api._
 

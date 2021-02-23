@@ -50,6 +50,9 @@ class RichDataSpec extends BaseSpec with BeforeAndAfterEach with BeforeAndAfterA
   override def beforeAll: Unit =
     Await.result(databaseReady, 60.seconds)
 
+  override def afterAll() =
+    container.stop()
+
   override def beforeEach: Unit = {
     import org.hatdex.hat.dal.Tables._
     import org.hatdex.libs.dal.HATPostgresProfile.api._
@@ -64,14 +67,6 @@ class RichDataSpec extends BaseSpec with BeforeAndAfterEach with BeforeAndAfterA
       DataJsonGroupRecords.filter(_.recordId in endpointRecordsQuery).delete,
       DataJsonGroups.filterNot(g => g.groupId in DataJsonGroupRecords.map(_.groupId)).delete,
       DataJson.filter(r => r.recordId in endpointRecordsQuery).delete
-      // DataDebitBundle.delete,
-      // DataDebitContract.delete,
-      // DataDebit.delete,
-      // DataCombinators.delete,
-      // DataBundles.delete,
-      // DataJsonGroupRecords.delete,
-      // DataJsonGroups.delete,
-      // DataJson.delete
     )
 
     Await.result(db.run(action), 60.seconds)

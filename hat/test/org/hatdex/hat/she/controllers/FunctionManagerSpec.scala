@@ -63,8 +63,10 @@ class FunctionManagerSpec
     Await.result(databaseReady, 60.seconds)
   }
 
-  override def afterAll: Unit =
+  override def afterAll: Unit = {
     DateTimeUtils.setCurrentMillisSystem()
+    container.stop()
+  }
 
   "The `functionList` method" should "return status 401 if authenticator but no identity was found" in {
     val request = FakeRequest("GET", "http://hat.hubofallthings.net")

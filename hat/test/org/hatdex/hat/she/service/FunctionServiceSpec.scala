@@ -49,8 +49,10 @@ class FunctionServiceSpec
     Await.result(databaseReady, 60.seconds)
   }
 
-  override def afterAll: Unit =
+  override def afterAll: Unit = {
     DateTimeUtils.setCurrentMillisSystem()
+    container.stop()
+  }
 
   override def before(): Unit = {
     import org.hatdex.hat.dal.Tables._

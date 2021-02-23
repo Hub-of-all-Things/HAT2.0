@@ -45,6 +45,7 @@ case class FileManagerS3Mock() extends MockitoSugar {
 
   private val s3ObjectMetadata = new ObjectMetadata()
   s3ObjectMetadata.setContentLength(123456L)
+  // TODO
   // doReturn(s3ObjectMetadata).when(mockS3client).getObjectMetadata("hat-storage-test", "hat.hubofallthings.net/testFile")
   // doNothing.when(mockS3client).deleteObject("hat-storage-test", "hat.hubofallthings.net/deleteFile")
 }
