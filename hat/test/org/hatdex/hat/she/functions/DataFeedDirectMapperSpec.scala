@@ -34,6 +34,7 @@ import scala.concurrent.duration._
 import io.dataswift.test.common.BaseSpec
 import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
 import scala.util.Success
+import scala.util.Failure
 
 class DataFeedDirectMapperSpec
     extends BaseSpec
@@ -298,8 +299,8 @@ class DataFeedDirectMapperSpec
     val transformed = mapper.mapDataRecord(fitbitDayEmptySummary.recordId.get, fitbitDayEmptySummary.data)
     println(transformed)
     transformed match {
-      case Success(_) => true
-      case _ => fail() 
+      case Failure(exception) => true 
+      case Success(_) => fail()
     }
   }
 
