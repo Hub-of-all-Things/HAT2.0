@@ -82,6 +82,7 @@ class FileManagerS3Spec extends BaseSpec with BeforeAndAfterEach with BeforeAndA
     val result: Future[Long] = fileManager.getFileSize("testFile")
 
     val r = Await.result(result, 10.seconds)
+    println(r)
     r must equal(123456L)
     // CalledMatchers are part of specs2
     //there was one(mockS3client).getObjectMetadata("hat-storage-test", "hat.hubofallthings.net/testFile")

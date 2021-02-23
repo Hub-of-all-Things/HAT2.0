@@ -28,6 +28,7 @@ import com.amazonaws.auth.{ AWSStaticCredentialsProvider, BasicAWSCredentials }
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.{ AmazonS3, AmazonS3ClientBuilder }
 import org.scalatestplus.mockito._
+import org.mockito.Mockito._
 
 import scala.concurrent.duration._
 
@@ -44,8 +45,9 @@ case class FileManagerS3Mock() extends MockitoSugar {
       .build()
 
   private val s3ObjectMetadata = new ObjectMetadata()
-  s3ObjectMetadata.setContentLength(123456L)
-  // TODO
-  // doReturn(s3ObjectMetadata).when(mockS3client).getObjectMetadata("hat-storage-test", "hat.hubofallthings.net/testFile")
-  // doNothing.when(mockS3client).deleteObject("hat-storage-test", "hat.hubofallthings.net/deleteFile")
+  s3ObjectMetadata
+    .setContentLength(123456L)
+  when(mockS3client.getObjectMetadata("hat-storage-test", "hat.hubofallthings.net/testFile"))
+    .thenReturn(s3ObjectMetadata)
+  when(mockS3client.deleteObject("hat-storage-test", "hat.hubofallthings.net/deleteFile")).thenReturn(())
 }
