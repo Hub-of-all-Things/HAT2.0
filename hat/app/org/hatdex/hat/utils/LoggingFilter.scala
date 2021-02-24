@@ -25,15 +25,16 @@
 package org.hatdex.hat.utils
 
 import javax.inject.{ Inject, Singleton }
+
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.Try
+
 import akka.stream.Materializer
 import com.nimbusds.jose.JWSObject
 import com.nimbusds.jwt.JWTClaimsSet
 import play.api.http.HttpErrorHandler
 import play.api.mvc.{ Filter, RequestHeader, Result }
 import play.api.{ Configuration, Logger }
-
-import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.Try
 
 @Singleton
 class ActiveHatCounter() {

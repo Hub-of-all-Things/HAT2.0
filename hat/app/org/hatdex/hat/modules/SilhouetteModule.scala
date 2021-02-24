@@ -24,6 +24,9 @@
 
 package org.hatdex.hat.modules
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.FiniteDuration
+
 import com.google.inject.name.Named
 import com.google.inject.{ AbstractModule, Provides }
 import com.mohiva.play.silhouette.api._
@@ -49,9 +52,6 @@ import org.hatdex.hat.utils.{ ErrorHandler, HatMailer, HatMailerImpl }
 import play.api.http.HttpErrorHandler
 import play.api.libs.ws.WSClient
 import play.api.{ ConfigLoader, Configuration }
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.duration.FiniteDuration
 
 /**
   * The Guice module which wires all Silhouette dependencies.

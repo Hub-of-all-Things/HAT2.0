@@ -25,27 +25,27 @@
 package org.hatdex.hat.she.models
 
 import java.util.concurrent.ExecutorService
+import javax.inject.Inject
+
+import scala.concurrent.{ ExecutionContext, Future }
 
 import akka.actor.ActorSystem
-import akka.stream.{ ActorMaterializer, Materializer }
 import akka.stream.alpakka.awslambda.scaladsl.AwsLambdaFlow
 import akka.stream.scaladsl.{ Sink, Source }
+import akka.stream.{ ActorMaterializer, Materializer }
 import akka.util.ByteString
 import com.amazonaws.auth.{ AWSStaticCredentialsProvider, BasicAWSCredentials }
 import com.amazonaws.client.builder.ExecutorFactory
 import com.amazonaws.services.lambda.model.{ InvokeRequest, InvokeResult }
 import com.amazonaws.services.lambda.{ AWSLambdaAsync, AWSLambdaAsyncClientBuilder }
-import javax.inject.Inject
-import org.hatdex.dex.apiV2.services.Errors.{ ApiException, DataFormatException }
-import org.hatdex.hat.api.models.EndpointDataBundle
-import org.hatdex.hat.api.models.applications.Version
+import org.hatdex.dex.apiV2.Errors.{ ApiException, DataFormatException }
+import io.dataswift.models.hat.EndpointDataBundle
+import io.dataswift.models.hat.applications.Version
 import org.hatdex.hat.api.service.RemoteExecutionContext
 import org.hatdex.hat.utils.ExecutorServiceWrapper
 import org.joda.time.DateTime
-import play.api.{ Configuration, Logger }
 import play.api.libs.json.{ Format, Json }
-
-import scala.concurrent.{ ExecutionContext, Future }
+import play.api.{ Configuration, Logger }
 
 class LambdaFunctionExecutable(
     id: String,

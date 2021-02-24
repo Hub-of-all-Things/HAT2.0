@@ -25,17 +25,17 @@
 package org.hatdex.hat.api.service.applications
 
 import javax.inject.Inject
-import org.hatdex.dex.apiV2.services.DexClient
-import org.hatdex.dex.apiV2.services.Errors.ApiException
-import org.hatdex.hat.api.models.applications.Application
-import org.hatdex.hat.api.service.RemoteExecutionContext
-import play.api.{ Configuration, Logger }
-import play.api.cache.AsyncCacheApi
-import play.api.libs.ws.WSClient
 
 import scala.concurrent.Future
-import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.duration._
+
+import org.hatdex.dex.apiV2.DexClient
+import org.hatdex.dex.apiV2.Errors.ApiException
+import io.dataswift.models.hat.applications.Application
+import org.hatdex.hat.api.service.RemoteExecutionContext
+import play.api.cache.AsyncCacheApi
+import play.api.libs.ws.WSClient
+import play.api.{ Configuration, Logger }
 
 trait TrustedApplicationProvider {
   def applications: Future[Seq[Application]]

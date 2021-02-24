@@ -26,19 +26,19 @@ package org.hatdex.hat.she.mappers
 
 import java.util.UUID
 
+import scala.util.{ Success, Try }
+
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import org.hatdex.hat.api.models._
-import org.hatdex.hat.api.models.applications._
+import io.dataswift.models.hat._
+import io.dataswift.models.hat.applications._
 import org.hatdex.hat.api.service.richData.RichDataService
 import org.hatdex.hat.resourceManagement.HatServer
 import org.hatdex.hat.utils.SourceMergeSorter
-import org.joda.time.format.{ DateTimeFormatter, ISODateTimeFormat }
 import org.joda.time.DateTime
+import org.joda.time.format.{ DateTimeFormatter, ISODateTimeFormat }
 import play.api.Logger
 import play.api.libs.json._
-
-import scala.util.{ Success, Try }
 
 trait DataEndpointMapper extends JodaWrites with JodaReads {
   protected lazy val logger: Logger                    = Logger(this.getClass)

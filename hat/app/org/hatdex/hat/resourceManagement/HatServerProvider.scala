@@ -28,6 +28,9 @@ import java.io.StringWriter
 import java.security.interfaces.RSAPublicKey
 import javax.inject.{ Inject, Named, Singleton }
 
+import scala.concurrent.Future
+import scala.concurrent.duration._
+
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
@@ -36,12 +39,9 @@ import org.bouncycastle.util.io.pem.{ PemObject, PemWriter }
 import org.hatdex.hat.api.service.RemoteExecutionContext
 import org.hatdex.hat.resourceManagement.actors.HatServerProviderActor
 import org.hatdex.hat.utils.LoggingProvider
-import play.api.cache.{ AsyncCacheApi, NamedCache }
 import play.api.Configuration
+import play.api.cache.{ AsyncCacheApi, NamedCache }
 import play.api.mvc.Request
-
-import scala.concurrent.Future
-import scala.concurrent.duration._
 
 trait HatServerProvider extends DynamicEnvironmentProviderService[HatServer] {
   def retrieve[B](request: Request[B]): Future[Option[HatServer]]

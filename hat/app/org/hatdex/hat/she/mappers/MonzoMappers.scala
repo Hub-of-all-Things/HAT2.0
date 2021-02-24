@@ -2,8 +2,9 @@ package org.hatdex.hat.she.mappers
 
 import java.util.UUID
 
-import org.hatdex.hat.api.models.{ EndpointQuery, EndpointQueryFilter, PropertyQuery }
-import org.hatdex.hat.api.models.applications.{
+import scala.util.Try
+
+import io.dataswift.models.hat.applications.{
   DataFeedItem,
   DataFeedItemContent,
   DataFeedItemLocation,
@@ -11,10 +12,9 @@ import org.hatdex.hat.api.models.applications.{
   LocationAddress,
   LocationGeo
 }
+import io.dataswift.models.hat.{ EndpointQuery, EndpointQueryFilter, PropertyQuery }
 import org.joda.time.DateTime
 import play.api.libs.json.JsValue
-
-import scala.util.Try
 
 class MonzoTransactionMapper extends DataEndpointMapper {
   def dataQueries(

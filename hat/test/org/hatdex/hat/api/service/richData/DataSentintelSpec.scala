@@ -24,18 +24,14 @@
 
 package org.hatdex.hat.api.service.richData
 
-import org.hatdex.hat.api.models._
-import org.joda.time.DateTime
-import org.specs2.concurrent.ExecutionEnv
-import org.specs2.mock.Mockito
-import org.specs2.specification.{ BeforeAll, BeforeEach }
-import play.api.Logger
-import play.api.test.PlaySpecification
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
+
 import io.dataswift.test.common.BaseSpec
+import io.dataswift.models.hat._
+import org.joda.time.DateTime
 import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
+import play.api.Logger
 
 class DataSentintelSpec extends BaseSpec with BeforeAndAfterEach with BeforeAndAfterAll with RichDataServiceContext {
 

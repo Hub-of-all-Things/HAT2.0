@@ -28,22 +28,19 @@ import java.util.UUID
 
 import akka.stream.Materializer
 import com.google.inject.AbstractModule
+import io.dataswift.test.common.BaseSpec
 import net.codingwell.scalaguice.ScalaModule
-import org.hatdex.hat.api.models.{ EndpointData, Owner }
+import io.dataswift.models.hat.{ EndpointData, Owner }
 import org.hatdex.hat.api.service.applications.{ TestApplicationProvider, TrustedApplicationProvider }
 import org.hatdex.hat.api.service.monitoring.HatDataEventBus.DataCreatedEvent
 import org.hatdex.hat.authentication.models.HatUser
 import org.hatdex.hat.dal.ModelTranslation
 import org.hatdex.hat.resourceManagement.FakeHatConfiguration
 import org.joda.time.DateTime
+import org.scalatest.{ BeforeAndAfter, BeforeAndAfterAll }
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{ JsValue, Json }
 import play.api.{ Application, Logger }
-
-import io.dataswift.test.common.BaseSpec
-import org.scalatest.{ BeforeAndAfter, BeforeAndAfterAll }
-import play.api.test.Helpers
-import play.api.test.Helpers._
 
 class HatDataStatsProcessorSpec
     extends BaseSpec
@@ -54,7 +51,7 @@ class HatDataStatsProcessorSpec
   val logger = Logger(this.getClass)
 
   "The `computeInboundStats` method" should "Correctly count numbers of values for simple objects" in {
-    import org.hatdex.hat.api.json.DataStatsFormat._
+    import io.dataswift.models.hat.json.DataStatsFormat._
 
     val service = application.injector.instanceOf[HatDataStatsProcessor]
     val stats   = service.computeInboundStats(simpleDataCreatedEvent)

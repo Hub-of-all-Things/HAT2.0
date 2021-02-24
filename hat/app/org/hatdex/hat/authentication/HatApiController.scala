@@ -25,12 +25,15 @@
 package org.hatdex.hat.authentication
 
 import javax.inject.Inject
+
+import scala.concurrent.{ ExecutionContext, Future }
+
 import com.digitaltangible.playguard.{ RateLimitActionFilter, RateLimiter }
 import com.mohiva.play.silhouette.api.actions._
 import com.mohiva.play.silhouette.api.{ Environment, Silhouette }
-import org.hatdex.hat.api.json.HatJsonFormats
-import org.hatdex.hat.api.models.applications.HatApplication
-import org.hatdex.hat.api.models.{ ErrorMessage, User }
+import io.dataswift.models.hat.json.HatJsonFormats
+import io.dataswift.models.hat.applications.HatApplication
+import io.dataswift.models.hat.{ ErrorMessage, User }
 import org.hatdex.hat.api.service.applications.ApplicationsService
 import org.hatdex.hat.authentication.models.HatUser
 import org.hatdex.hat.dal.ModelTranslation
@@ -40,8 +43,6 @@ import play.api.Configuration
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{ Format, Json }
 import play.api.mvc._
-
-import scala.concurrent.{ ExecutionContext, Future }
 
 abstract class HatController[T <: HatAuthEnvironment](
     components: ControllerComponents,

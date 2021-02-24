@@ -24,13 +24,13 @@
 
 package org.hatdex.hat.api.service
 
-import org.hatdex.hat.api.models.{ ApiHatFile, ApiHatFilePermissions, HatFileStatus }
-import play.api.Logger
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
+
 import io.dataswift.test.common.BaseSpec
+import io.dataswift.models.hat.{ ApiHatFile, ApiHatFilePermissions, HatFileStatus }
 import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
+import play.api.Logger
 
 class FileMetadataServiceSpec extends BaseSpec with BeforeAndAfterEach with BeforeAndAfterAll with FileManagerContext {
   import scala.concurrent.ExecutionContext.Implicits.global

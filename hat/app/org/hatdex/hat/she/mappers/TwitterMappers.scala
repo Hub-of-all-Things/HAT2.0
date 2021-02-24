@@ -2,8 +2,9 @@ package org.hatdex.hat.she.mappers
 
 import java.util.UUID
 
-import org.hatdex.hat.api.models.{ EndpointQuery, EndpointQueryFilter, PropertyQuery }
-import org.hatdex.hat.api.models.applications.{
+import scala.util.{ Failure, Try }
+
+import io.dataswift.models.hat.applications.{
   DataFeedItem,
   DataFeedItemContent,
   DataFeedItemLocation,
@@ -11,11 +12,10 @@ import org.hatdex.hat.api.models.applications.{
   LocationAddress,
   LocationGeo
 }
+import io.dataswift.models.hat.{ EndpointQuery, EndpointQueryFilter, PropertyQuery }
 import org.hatdex.hat.she.models.StaticDataValues
 import org.joda.time.DateTime
 import play.api.libs.json.{ JsNull, JsObject, JsValue }
-
-import scala.util.{ Failure, Try }
 
 class TwitterProfileMapper extends DataEndpointMapper with FeedItemComparator {
   def dataQueries(

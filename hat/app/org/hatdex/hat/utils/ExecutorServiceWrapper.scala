@@ -28,15 +28,16 @@
 
 package org.hatdex.hat.utils
 
-import concurrent.{ Await, ExecutionContext, Future, Promise }
-import java.util.concurrent.{ Future => JavaFuture, TimeUnit, Callable, CancellationException, ExecutorService }
-import concurrent.duration._
-import scala.util.Success
-import scala.util.Failure
-import scala.util.control.NonFatal
-import scala.collection.JavaConverters._
-import concurrent.duration.TimeUnit
+import java.util.concurrent.{ Callable, CancellationException, ExecutorService, Future => JavaFuture, TimeUnit }
 import java.{ util => jutil }
+
+import scala.collection.JavaConverters._
+import scala.util.control.NonFatal
+import scala.util.{ Failure, Success }
+
+import concurrent.{ Await, ExecutionContext, Future, Promise }
+import concurrent.duration._
+import concurrent.duration.TimeUnit
 
 class ExecutorServiceWrapper(implicit ec: ExecutionContext) extends ExecutorService {
 

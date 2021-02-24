@@ -24,19 +24,20 @@
 
 package org.hatdex.hat.api.service.richData
 
+import javax.inject.Inject
+
+import scala.concurrent.Future
+
 import akka.Done
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{ Flow, Sink, Source }
-import javax.inject.Inject
 import org.hatdex.hat.api.service.DalExecutionContext
 import org.hatdex.hat.dal.Tables._
 import org.hatdex.libs.dal.HATPostgresProfile.api._
 import org.joda.time.DateTime
 import org.joda.time.format.{ DateTimeFormat, DateTimeFormatter, ISODateTimeFormat }
 import play.api.libs.json._
-
-import scala.concurrent.Future
 
 class DataSentintel @Inject() (
     implicit ec: DalExecutionContext,

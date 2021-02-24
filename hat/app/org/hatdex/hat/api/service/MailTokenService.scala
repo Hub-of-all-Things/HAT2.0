@@ -25,14 +25,15 @@
 package org.hatdex.hat.api.service
 
 import javax.inject.Inject
+
+import scala.concurrent._
+
 import akka.Done
 import org.hatdex.hat.dal.ModelTranslation
 import org.hatdex.hat.dal.Tables._
 import org.hatdex.hat.phata.models.{ MailToken, MailTokenUser }
 import org.hatdex.libs.dal.HATPostgresProfile.api._
 import org.joda.time.LocalDateTime
-
-import scala.concurrent._
 
 trait MailTokenService[T <: MailToken] {
   def create(token: T)(implicit db: Database): Future[Option[T]]

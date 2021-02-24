@@ -24,12 +24,12 @@
 
 package org.hatdex.hat.dal
 
+import scala.concurrent.ExecutionContext
+
 import com.typesafe.config.Config
 import org.hatdex.libs.dal.BaseSchemaMigrationImpl
 import play.api.{ Configuration, Logger }
 import slick.driver.JdbcProfile
-
-import scala.concurrent.ExecutionContext
 
 class HatDbSchemaMigration(
     config: Configuration,

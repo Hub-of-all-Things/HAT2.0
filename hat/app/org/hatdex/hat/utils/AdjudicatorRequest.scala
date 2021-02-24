@@ -1,18 +1,18 @@
 package org.hatdex.hat.utils
 
+import scala.concurrent.{ ExecutionContext, Future }
+
 import dev.profunktor.auth.jwt.JwtSecretKey
-import io.dataswift.adjudicator.{ HatClaim, JwtBuilder, JwtClaimBuilder }
-import io.dataswift.adjudicator.Types.{ ContractId, HatName }
-import pdi.jwt.{ Jwt, JwtAlgorithm, JwtClaim, JwtHeader }
-import play.api.libs.ws.{ WSClient, WSRequest }
-import play.api.http.Status._
-import play.api.libs.json.Json
+import eu.timepit.refined._
 import eu.timepit.refined.auto._
 import eu.timepit.refined.collection.NonEmpty
-import eu.timepit.refined._
+import io.dataswift.adjudicator.Types.{ ContractId, HatName }
+import io.dataswift.adjudicator.{ HatClaim, JwtClaimBuilder }
+import pdi.jwt.{ Jwt, JwtAlgorithm, JwtClaim, JwtHeader }
 import play.api.Logger
-
-import scala.concurrent.{ ExecutionContext, Future }
+import play.api.http.Status._
+import play.api.libs.json.Json
+import play.api.libs.ws.{ WSClient, WSRequest }
 
 object AdjudicatorRequestTypes {
 

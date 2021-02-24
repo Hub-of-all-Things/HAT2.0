@@ -25,25 +25,24 @@
 package org.hatdex.hat.she.service
 
 import java.security.MessageDigest
-
 import javax.inject.Inject
+
+import scala.concurrent.duration._
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.{ Failure, Success }
+
 import akka.Done
-import org.hatdex.hat.api.json.{ ApplicationJsonProtocol, DataFeedItemJsonProtocol }
-import org.hatdex.hat.api.models.{ EndpointData, Owner }
+import io.dataswift.models.hat.json.{ ApplicationJsonProtocol, DataFeedItemJsonProtocol }
+import io.dataswift.models.hat.{ EndpointData, Owner }
 import org.hatdex.hat.api.service.UsersService
 import org.hatdex.hat.api.service.richData.RichDataService
+import org.hatdex.hat.dal.Tables._
+import org.hatdex.hat.resourceManagement.HatServer
 import org.hatdex.hat.she.models._
 import org.hatdex.libs.dal.HATPostgresProfile.api._
 import org.joda.time.DateTime
-import org.hatdex.hat.dal.Tables._
-import org.hatdex.hat.resourceManagement.HatServer
 import play.api.Logger
 import play.api.libs.json.Json
-
-import scala.concurrent.duration.FiniteDuration
-import scala.concurrent.{ ExecutionContext, Future }
-import scala.concurrent.duration._
-import scala.util.{ Failure, Success }
 
 class FunctionService @Inject() (
     functionRegistry: FunctionExecutableRegistry,
@@ -145,7 +144,7 @@ class FunctionService @Inject() (
       configuration: FunctionConfiguration
     )(implicit db: Database): Future[FunctionConfiguration] = {
     logger.debug(s"Save function configuration $configuration")
-    import org.hatdex.hat.api.json.RichDataJsonFormats.propertyQueryFormat
+    import io.dataswift.models.hat.json.RichDataJsonFormats.propertyQueryFormat
     import org.hatdex.hat.she.models.FunctionConfigurationJsonProtocol.triggerFormat
     import ApplicationJsonProtocol.formattedTextFormat
     import DataFeedItemJsonProtocol.feedItemFormat

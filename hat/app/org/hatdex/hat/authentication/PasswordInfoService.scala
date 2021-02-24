@@ -26,6 +26,8 @@ package org.hatdex.hat.authentication
 
 import javax.inject.Inject
 
+import scala.concurrent.Future
+
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.PasswordInfo
 import com.mohiva.play.silhouette.password.BCryptPasswordHasher
@@ -33,8 +35,6 @@ import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import org.hatdex.hat.api.service.DalExecutionContext
 import org.hatdex.hat.resourceManagement.HatServer
 import play.api.Logger
-
-import scala.concurrent.Future
 
 class PasswordInfoService @Inject() (
     userService: AuthUserServiceImpl

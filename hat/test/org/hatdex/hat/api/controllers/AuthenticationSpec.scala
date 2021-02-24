@@ -26,31 +26,27 @@ package org.hatdex.hat.api.controllers
 
 import java.util.UUID
 
+import scala.concurrent.duration._
+import scala.concurrent.{ Await, Future }
+
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.crypto.Base64AuthenticatorEncoder
 import com.mohiva.play.silhouette.impl.authenticators.{ JWTRS256Authenticator, JWTRS256AuthenticatorSettings }
 import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.test._
+import io.dataswift.test.common.BaseSpec
 import org.hatdex.hat.api.HATTestContext
-import org.hatdex.hat.api.models.DataDebitOwner
+import io.dataswift.models.hat.DataDebitOwner
 import org.hatdex.hat.api.service._
-import org.hatdex.hat.authentication.models.HatUser
 import org.hatdex.hat.phata.models.{ ApiPasswordChange, ApiPasswordResetRequest, ApiValidationRequest, MailTokenUser }
-import org.hatdex.hat.resourceManagement.HatServer
 import org.joda.time.DateTime
+import org.scalatest.{ BeforeAndAfter, BeforeAndAfterAll }
 import play.api.Logger
-import play.api.i18n.{ Lang, Messages, MessagesApi }
 import play.api.libs.json.{ JsValue, Json }
 import play.api.mvc.Result
-import play.api.test.{ FakeHeaders, FakeRequest, Helpers, PlaySpecification }
-import play.mvc.Http.{ HeaderNames, MimeTypes }
-
-import scala.concurrent.duration._
-import scala.concurrent.{ Await, Future }
-import io.dataswift.test.common.BaseSpec
-import org.scalatest.{ BeforeAndAfter, BeforeAndAfterAll }
-import play.api.test.Helpers
 import play.api.test.Helpers._
+import play.api.test.{FakeHeaders, FakeRequest, Helpers}
+import play.mvc.Http.{ HeaderNames, MimeTypes }
 
 class AuthenticationSpec extends BaseSpec with BeforeAndAfter with BeforeAndAfterAll with AuthenticationContext {
 
@@ -237,7 +233,6 @@ class AuthenticationSpec extends BaseSpec with BeforeAndAfter with BeforeAndAfte
 
   // Times out
   it should "Send email to the owner if provided email matches" in {
-    import org.mockito.ArgumentMatchers.{ any }
     val request = FakeRequest("POST", "http://hat.hubofallthings.net")
       .withAuthenticator(dataDebitUser.loginInfo)
       .withJsonBody(Json.toJson(passwordForgottenOwner))

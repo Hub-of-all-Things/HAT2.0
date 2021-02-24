@@ -24,17 +24,16 @@
 
 package org.hatdex.hat.she.functions
 
-import org.hatdex.hat.api.models.FilterOperator.Between
-import org.hatdex.hat.she.mappers._
-import org.joda.time.{ DateTime, DateTimeUtils }
-import play.api.Logger
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.util.{Failure, Success}
+
 import io.dataswift.test.common.BaseSpec
+import io.dataswift.models.hat.FilterOperator.Between
+import org.hatdex.hat.she.mappers._
+import org.joda.time.{ DateTime, DateTimeUtils }
 import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
-import scala.util.Success
-import scala.util.Failure
+import play.api.Logger
 
 class DataFeedDirectMapperSpec
     extends BaseSpec

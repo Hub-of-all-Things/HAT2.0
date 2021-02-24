@@ -26,18 +26,17 @@ package org.hatdex.hat.resourceManagement.actors
 
 import javax.inject.Inject
 
+import scala.collection.mutable
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.{ Failure, Success }
+
 import akka.actor.{ Props, _ }
 import akka.util.Timeout
 import org.hatdex.hat.api.service.RemoteExecutionContext
 import org.hatdex.hat.utils.ActiveHatCounter
 import play.api.libs.concurrent.InjectedActorSupport
 import play.api.{ Configuration, Logger }
-
-import scala.collection.mutable
-import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.util.{ Failure, Success }
-import views.html.helper.select
 
 class HatServerProviderActor @Inject() (
     hatServerActorFactory: HatServerActor.Factory,

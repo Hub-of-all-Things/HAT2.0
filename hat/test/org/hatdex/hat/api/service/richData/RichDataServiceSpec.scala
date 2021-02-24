@@ -26,19 +26,17 @@ package org.hatdex.hat.api.service.richData
 
 import java.util.UUID
 
-import akka.stream.scaladsl.Sink
-import org.hatdex.hat.api.HATTestContext
-import org.hatdex.hat.api.models._
-import org.hatdex.hat.dal.Tables.{ DataJson, DataJsonGroups }
-import org.hatdex.libs.dal.HATPostgresProfile.api._
-import play.api.Logger
-import play.api.libs.json.{ JsObject, JsValue, Json }
-import play.api.test.PlaySpecification
-
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, Future }
+
+import akka.stream.scaladsl.Sink
 import io.dataswift.test.common.{ BaseSpec }
+import org.hatdex.hat.api.HATTestContext
+import io.dataswift.models.hat._
+import org.hatdex.hat.dal.Tables.{ DataJson, DataJsonGroups }
 import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
+import play.api.Logger
+import play.api.libs.json.{ JsObject, JsValue, Json }
 
 class RichDataStreamingServiceSpec
     extends BaseSpec

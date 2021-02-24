@@ -27,7 +27,7 @@ package org.hatdex.hat.authentication.models
 import java.util.UUID
 
 import com.mohiva.play.silhouette.api.{ Identity, LoginInfo }
-import org.hatdex.hat.api.models._
+import io.dataswift.models.hat._
 import org.hatdex.hat.resourceManagement.HatServer
 
 case class HatUser(

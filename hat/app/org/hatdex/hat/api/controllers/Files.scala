@@ -25,12 +25,14 @@
 package org.hatdex.hat.api.controllers
 
 import java.util.UUID
+import javax.inject.Inject
+
+import scala.concurrent.{ ExecutionContext, Future }
 
 import com.mohiva.play.silhouette.api.Silhouette
-import javax.inject.Inject
-import org.hatdex.hat.api.json.HatJsonFormats
-import org.hatdex.hat.api.models._
-import org.hatdex.hat.api.models.applications.HatApplication
+import io.dataswift.models.hat.json.HatJsonFormats
+import io.dataswift.models.hat._
+import io.dataswift.models.hat.applications.HatApplication
 import org.hatdex.hat.api.service.applications.ApplicationsService
 import org.hatdex.hat.api.service.{ FileManager, FileMetadataService, UsersService }
 import org.hatdex.hat.authentication.models.HatUser
@@ -40,8 +42,6 @@ import org.joda.time.DateTime
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
-
-import scala.concurrent.{ ExecutionContext, Future }
 
 class Files @Inject() (
     components: ControllerComponents,

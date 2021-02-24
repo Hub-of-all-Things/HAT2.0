@@ -25,15 +25,15 @@ package org.hatdex.hat.she.mappers
 
 import java.util.UUID
 
-import org.hatdex.hat.api.models.{ EndpointData, PropertyQuery }
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
+import io.dataswift.models.hat.{ EndpointData, PropertyQuery }
 import org.hatdex.hat.api.service.richData.RichDataService
 import org.hatdex.hat.resourceManagement.HatServer
 import org.hatdex.hat.she.models.StaticDataValues
 import play.api.Logger
 import play.api.libs.json._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 trait StaticDataEndpointMapper extends JodaWrites with JodaReads {
   protected lazy val logger: Logger = Logger(this.getClass)

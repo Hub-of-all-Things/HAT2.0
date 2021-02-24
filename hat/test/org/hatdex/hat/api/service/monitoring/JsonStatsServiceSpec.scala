@@ -28,17 +28,13 @@ import java.util.UUID
 
 import akka.stream.Materializer
 import io.dataswift.test.common.BaseSpec
-import org.hatdex.hat.api.models.EndpointData
-import org.hatdex.hat.api.models.Owner
+import io.dataswift.models.hat.{ EndpointData, Owner }
 import org.hatdex.hat.authentication.models.HatUser
 import org.hatdex.hat.resourceManagement.FakeHatConfiguration
-import org.scalatest.BeforeAndAfter
-import org.scalatest.BeforeAndAfterAll
-import play.api.Application
-import play.api.Logger
+import org.scalatest.{ BeforeAndAfter, BeforeAndAfterAll }
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.JsValue
-import play.api.libs.json.Json
+import play.api.libs.json.{ JsValue, Json }
+import play.api.{ Application, Logger }
 
 class JsonStatsServiceSpec extends BaseSpec with BeforeAndAfter with BeforeAndAfterAll with JsonStatsServiceContext {
 

@@ -24,15 +24,15 @@
 
 package org.hatdex.hat.resourceManagement
 
+import scala.concurrent.duration._
+import scala.concurrent.{ ExecutionContext, Future }
+
 import org.hatdex.hat.resourceManagement.models.HatSignup
 import play.api.cache.AsyncCacheApi
 import play.api.http.Status._
 import play.api.libs.json.{ JsError, JsSuccess }
 import play.api.libs.ws.{ WSClient, WSRequest, WSResponse }
 import play.api.{ Configuration, Logger }
-
-import scala.concurrent.duration._
-import scala.concurrent.{ ExecutionContext, Future }
 
 trait MillinerHatSignup {
   val logger: Logger

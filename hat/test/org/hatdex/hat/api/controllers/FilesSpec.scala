@@ -24,29 +24,28 @@
 
 package org.hatdex.hat.api.controllers
 
+import scala.concurrent.duration._
+import scala.concurrent.{ Await, Future }
+
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.test._
+import io.dataswift.test.common.BaseSpec
 import org.hatdex.hat.api.HATTestContext
-import org.hatdex.hat.api.models._
+import io.dataswift.models.hat._
 import org.hatdex.hat.api.service._
+import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.Result
-import play.api.test.{ FakeRequest, Helpers }
-
-import scala.concurrent.duration._
-import scala.concurrent.{ Await, Future }
-import io.dataswift.test.common.BaseSpec
-import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
-import play.api.test.Helpers
 import play.api.test.Helpers._
+import play.api.test.{ FakeRequest, Helpers }
 
 class FilesSpec extends BaseSpec with BeforeAndAfterEach with BeforeAndAfterAll with FilesContext {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(this.getClass)
 
-  import org.hatdex.hat.api.json.HatJsonFormats._
+  import io.dataswift.models.hat.json.HatJsonFormats._
 
   override def beforeAll: Unit =
     Await.result(databaseReady, 60.seconds)

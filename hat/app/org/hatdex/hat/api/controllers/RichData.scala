@@ -25,39 +25,30 @@
 package org.hatdex.hat.api.controllers
 
 import java.util.UUID
-
 import javax.inject.Inject
+
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.control.NonFatal
+
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
-import org.hatdex.hat.api.json.RichDataJsonFormats
-import org.hatdex.hat.api.models._
-import org.hatdex.hat.api.models.applications.{ Application, HatApplication }
-import org.hatdex.hat.api.service.applications.{ ApplicationsService, TrustedApplicationProvider }
+import eu.timepit.refined.auto._
+import io.dataswift.models.hat.json.RichDataJsonFormats
+import io.dataswift.models.hat._
+import io.dataswift.models.hat.applications.HatApplication
 import org.hatdex.hat.api.service.UsersService
+import org.hatdex.hat.api.service.applications.{ ApplicationsService, TrustedApplicationProvider }
 import org.hatdex.hat.api.service.monitoring.HatDataEventDispatcher
 import org.hatdex.hat.api.service.richData.{ RichDataServiceException, _ }
-import org.hatdex.hat.utils.{ HatBodyParsers, LoggingProvider }
 import org.hatdex.hat.authentication.models._
 import org.hatdex.hat.authentication.{ ContainsApplicationRole, HatApiAuthEnvironment, HatApiController, WithRole }
+import org.hatdex.hat.utils.{ HatBodyParsers, LoggingProvider }
+import org.hatdex.libs.dal.HATPostgresProfile
+import play.api.Configuration
+import play.api.libs.json.Reads._
 import play.api.libs.json.{ JsArray, JsValue, Json }
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import org.hatdex.libs.dal.HATPostgresProfile
-import play.api.Configuration
-import eu.timepit.refined.auto._
-import eu.timepit.refined.collection.NonEmpty
-import eu.timepit.refined._
-import pdi.jwt.JwtClaim
-import play.api.libs.json.Reads._
-import org.hatdex.hat.resourceManagement.HatServer
-
-import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.{ Failure, Success }
-import scala.util.control.NonFatal
-import play.api.libs.json.Reads
-import org.hatdex.hat.NamespaceUtils.NamespaceUtils
-import org.joda.time.{ DateTime, Duration, LocalDateTime }
-import org.hatdex.hat.api.controllers.RequestValidationFailure.MissingHatName
 
 class RichData @Inject() (
     components: ControllerComponents,

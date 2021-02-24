@@ -24,12 +24,13 @@
 
 package org.hatdex.hat.utils
 
-import akka.stream.Materializer
 import javax.inject.Inject
-import play.api.Environment
-import play.api.mvc._
 
 import scala.concurrent.{ ExecutionContext, Future }
+
+import akka.stream.Materializer
+import play.api.Environment
+import play.api.mvc._
 
 class TLSFilter @Inject() (
     implicit

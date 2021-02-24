@@ -13,8 +13,7 @@ import io.dataswift.test.common.BaseSpec
 import io.prometheus.client.CollectorRegistry
 import play.api.libs.typedmap.TypedMap
 import play.api.mvc._
-import play.api.routing.HandlerDef
-import play.api.routing.Router
+import play.api.routing.{HandlerDef, Router}
 import play.api.test.Helpers._
 import play.api.test._
 

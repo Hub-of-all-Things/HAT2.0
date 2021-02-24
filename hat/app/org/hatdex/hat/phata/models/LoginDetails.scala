@@ -24,11 +24,11 @@
 
 package org.hatdex.hat.phata.models
 
+import scala.collection.JavaConverters._
+
 import me.gosimple.nbvcxz._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{ JsError, _ }
-
-import scala.collection.JavaConverters._
 
 case class ApiPasswordChange(
     newPassword: String,

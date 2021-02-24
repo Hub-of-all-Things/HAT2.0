@@ -24,10 +24,10 @@
 
 package org.hatdex.hat.api.service.richData
 
+import io.dataswift.test.common.BaseSpec
 import play.api.Logger
 import play.api.libs.json.Reads._
 import play.api.libs.json.{ JsValue, Json, _ }
-import io.dataswift.test.common.BaseSpec
 
 class JsonDataTransformerSpec extends BaseSpec {
 

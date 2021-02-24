@@ -23,12 +23,12 @@
  */
 package org.hatdex.hat.api.service
 
-import org.hatdex.hat.api.models.{ ApiDataField, ApiDataRecord, ApiDataTable, ApiDataValue }
+import scala.concurrent.{ ExecutionContext, Future }
+
+import io.dataswift.models.hat.{ ApiDataField, ApiDataRecord, ApiDataTable, ApiDataValue }
 import org.hatdex.hat.dal.ModelTranslation
 import org.hatdex.hat.dal.Tables._
 import org.hatdex.libs.dal.HATPostgresProfile.api._
-
-import scala.concurrent.{ ExecutionContext, Future }
 
 object DataService {
   protected[service] def buildTableStructure(

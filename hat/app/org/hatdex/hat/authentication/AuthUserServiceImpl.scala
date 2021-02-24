@@ -26,12 +26,12 @@ package org.hatdex.hat.authentication
 
 import javax.inject.Inject
 
+import scala.concurrent.Future
+
 import com.mohiva.play.silhouette.api.LoginInfo
 import org.hatdex.hat.api.service.UsersService
 import org.hatdex.hat.authentication.models.HatUser
 import org.hatdex.hat.resourceManagement.HatServer
-
-import scala.concurrent.Future
 
 /**
   * Handles actions to users.

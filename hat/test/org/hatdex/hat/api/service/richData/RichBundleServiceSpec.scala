@@ -24,15 +24,15 @@
 
 package org.hatdex.hat.api.service.richData
 
-import org.hatdex.hat.api.HATTestContext
-import org.hatdex.hat.api.models._
-import play.api.Logger
-import play.api.libs.json.{ JsObject, Json }
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
+
 import io.dataswift.test.common.BaseSpec
+import org.hatdex.hat.api.HATTestContext
+import io.dataswift.models.hat._
 import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
+import play.api.Logger
+import play.api.libs.json.{ JsObject, Json }
 
 class RichBundleServiceSpec
     extends BaseSpec

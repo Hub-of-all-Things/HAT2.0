@@ -24,12 +24,12 @@
 
 package org.hatdex.hat.utils
 
+import scala.annotation.tailrec
+
 import akka.NotUsed
 import akka.stream.scaladsl.{ GraphDSL, MergeSorted, Source }
 import akka.stream.stage.GraphStage
 import akka.stream.{ FanInShape2, SourceShape }
-
-import scala.annotation.tailrec
 
 class SourceMergeSorter {
   def mergeWithSorter[A](

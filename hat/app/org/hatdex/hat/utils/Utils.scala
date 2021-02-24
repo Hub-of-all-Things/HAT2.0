@@ -23,11 +23,11 @@
  */
 package org.hatdex.hat.utils
 
-import play.api.Logger
-
 import scala.collection.immutable.HashMap
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, Try }
+
+import play.api.Logger
 
 object Utils {
   def flatten[T](xs: Seq[Try[T]]): Try[Seq[T]] = {

@@ -24,12 +24,12 @@
 
 package org.hatdex.hat.utils
 
-import akka.actor.Scheduler
-import akka.pattern.after
-
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Random
+
+import akka.actor.Scheduler
+import akka.pattern.after
 
 object FutureRetries {
   def retry[T](

@@ -27,14 +27,11 @@ package org.hatdex.hat.api.service.monitoring
 import java.util.UUID
 
 import io.dataswift.test.common.BaseSpec
-import org.hatdex.hat.api.models.Owner
-import org.hatdex.hat.api.models._
+import io.dataswift.models.hat._
 import org.hatdex.hat.authentication.models.HatUser
-import org.scalatest.BeforeAndAfter
-import org.scalatest.BeforeAndAfterAll
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import play.api.Logger
-import play.api.libs.json.JsValue
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
 class EndpointSubscriberServiceSpec
     extends BaseSpec

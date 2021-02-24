@@ -22,35 +22,17 @@
 
 package org.hatdex.hat.utils
 
-import com.mohiva.play.silhouette.test._
-import io.dataswift.adjudicator.Types.{ ContractId, HatName }
-import org.hatdex.hat.api.HATTestContext
-import org.hatdex.hat.api.controllers.RichData
-import org.hatdex.hat.api.models._
-import org.hatdex.hat.api.service.richData.{ DataDebitContractService, RichDataService }
-import org.joda.time.LocalDateTime
-import org.specs2.concurrent.ExecutionEnv
-import org.specs2.mock.Mockito
-import org.specs2.specification.{ BeforeAll, BeforeEach }
-import play.api.Logger
-import play.api.libs.json.{ JsArray, JsObject, JsValue, Json }
-import play.api.mvc.{ Action, Result, Results }
-import play.api.test.{ FakeRequest, Helpers, PlaySpecification, WsTestClient }
-import play.api.libs.ws.{ WSClient, WSRequest }
-import eu.timepit.refined._
-import eu.timepit.refined.auto._
 import java.util.UUID
-
-import akka.util.ByteString
-import play.api.http.HttpEntity
-import play.core.server.Server
 
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, ExecutionContext, Future }
-import dev.profunktor.auth.jwt.JwtSecretKey
+
+import eu.timepit.refined.auto._
+import io.dataswift.adjudicator.Types.{ ContractId, HatName }
 import io.dataswift.test.common.BaseSpec
 import org.scalatestplus.mockito.MockitoSugar
-import _root_.cats.implicits
+import play.api.Logger
+import play.api.test.WsTestClient
 
 class AdjudicatorRequestSpec extends BaseSpec with AdjudicatorContext {
 

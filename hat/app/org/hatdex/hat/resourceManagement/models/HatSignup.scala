@@ -27,8 +27,7 @@ package org.hatdex.hat.resourceManagement.models
 import java.util.UUID
 
 import org.joda.time.DateTime
-import play.api.libs.json.Json
-import play.api.libs.json.OFormat
+import play.api.libs.json.{ Json, OFormat }
 
 case class DatabaseInstance(
     id: UUID,

@@ -24,11 +24,11 @@
 
 package org.hatdex.hat.api.service.monitoring
 
-import org.hatdex.hat.api.models.{ EndpointData, EndpointStats }
+import scala.collection.immutable.HashMap
+
+import io.dataswift.models.hat.{ EndpointData, EndpointStats }
 import org.hatdex.hat.utils.Utils
 import play.api.libs.json._
-
-import scala.collection.immutable.HashMap
 
 object JsonStatsService {
   protected[service] def countJsonPaths(

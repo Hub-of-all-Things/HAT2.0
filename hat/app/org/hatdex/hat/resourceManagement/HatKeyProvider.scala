@@ -28,14 +28,14 @@ import java.io.{ StringReader, StringWriter }
 import java.security.interfaces.{ RSAPrivateKey, RSAPublicKey }
 import javax.inject.{ Inject, Singleton }
 
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.Try
+
 import com.atlassian.jwt.core.keys.KeyUtils
 import org.bouncycastle.util.io.pem.{ PemObject, PemWriter }
 import play.api.cache.AsyncCacheApi
 import play.api.libs.ws.WSClient
 import play.api.{ Configuration, Logger }
-
-import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.Try
 
 trait HatKeyProvider {
   protected val keyUtils = new KeyUtils()

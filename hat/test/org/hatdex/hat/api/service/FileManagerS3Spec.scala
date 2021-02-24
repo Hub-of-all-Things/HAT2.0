@@ -24,13 +24,13 @@
 
 package org.hatdex.hat.api.service
 
-import org.hatdex.hat.api.HATTestContext
-import play.api.Logger
-
-import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
+import scala.concurrent.{ Await, Future }
+
 import io.dataswift.test.common.BaseSpec
+import org.hatdex.hat.api.HATTestContext
 import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
+import play.api.Logger
 
 class FileManagerS3Spec extends BaseSpec with BeforeAndAfterEach with BeforeAndAfterAll with FileManagerContext {
 

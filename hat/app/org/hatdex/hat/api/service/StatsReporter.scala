@@ -25,12 +25,17 @@ package org.hatdex.hat.api.service
 
 import javax.inject.{ Inject, Singleton }
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.Failure
+
 import akka.Done
 import akka.actor.{ ActorSystem, Scheduler }
 import com.mohiva.play.silhouette.api.services.AuthenticatorService
 import com.mohiva.play.silhouette.impl.authenticators.JWTRS256Authenticator
-import org.hatdex.dex.apiV2.services.DexClient
-import org.hatdex.hat.api.models.{ DataStats, Platform }
+import org.hatdex.dex.apiV2.DexClient
+import io.dataswift.models.hat.{ DataStats, Platform }
 import org.hatdex.hat.authentication.models.HatUser
 import org.hatdex.hat.dal.ModelTranslation
 import org.hatdex.hat.dal.Tables._
@@ -41,11 +46,6 @@ import play.api.libs.json.{ JsObject, Json }
 import play.api.libs.ws.WSClient
 import play.api.test.FakeRequest
 import play.api.{ Configuration, Logger }
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.util.Failure
 
 @Singleton
 class StatsReporter @Inject() (
@@ -132,7 +132,7 @@ class StatsReporter @Inject() (
   private def persistStats(
       stats: Seq[DataStats]
     )(implicit server: HatServer): Future[Seq[Long]] = {
-    import org.hatdex.hat.api.json.DataStatsFormat.dataStatsFormat
+    import io.dataswift.models.hat.json.DataStatsFormat.dataStatsFormat
     logger.debug(s"Persisting stats $stats")
     val dataStatsLogs = stats map { item =>
       DataStatsLogRow(0, Json.toJson(item))

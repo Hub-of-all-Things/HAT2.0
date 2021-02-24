@@ -25,19 +25,19 @@
 package org.hatdex.hat.modules
 
 import java.util.UUID
+import javax.inject.Inject
+
+import scala.concurrent.Future
 
 import com.typesafe.config.Config
-import javax.inject.Inject
 import net.codingwell.scalaguice.ScalaModule
-import org.hatdex.hat.api.models.{ Owner, Platform }
+import io.dataswift.models.hat.{ Owner, Platform }
 import org.hatdex.hat.api.service.{ DalExecutionContext, UsersService }
 import org.hatdex.hat.authentication.models.HatUser
 import org.hatdex.hat.dal.HatDbSchemaMigration
 import org.hatdex.hat.resourceManagement.{ HatServer, HatServerProvider }
 import play.api.libs.concurrent.AkkaGuiceSupport
 import play.api.{ ConfigLoader, Configuration, Logger }
-
-import scala.concurrent.Future
 
 class DevHatInitializationModule extends ScalaModule with AkkaGuiceSupport {
 

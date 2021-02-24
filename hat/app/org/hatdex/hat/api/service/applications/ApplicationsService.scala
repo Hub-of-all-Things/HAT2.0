@@ -24,21 +24,25 @@
 package org.hatdex.hat.api.service.applications
 
 import java.util.UUID
+import javax.inject.Inject
+
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.Success
 
 import akka.Done
 import akka.actor.ActorSystem
 import com.mohiva.play.silhouette.api.Silhouette
 import dev.profunktor.auth.jwt.JwtSecretKey
 import io.dataswift.adjudicator.Types.ContractId
-import javax.inject.Inject
-import org.hatdex.hat.api.models.applications.{
+import io.dataswift.models.hat.applications.{
   Application,
   ApplicationKind,
   ApplicationStatus,
   HatApplication,
   Version
 }
-import org.hatdex.hat.api.models.{ AccessToken, EndpointQuery }
+import io.dataswift.models.hat.{ AccessToken, EndpointQuery }
 import org.hatdex.hat.api.service.applications.ApplicationExceptions.{
   HatApplicationDependencyException,
   HatApplicationSetupException
@@ -51,19 +55,14 @@ import org.hatdex.hat.dal.Tables
 import org.hatdex.hat.dal.Tables.ApplicationStatusRow
 import org.hatdex.hat.resourceManagement.HatServer
 import org.hatdex.hat.she.service.FunctionService
-import org.hatdex.hat.utils.{ FutureTransformations, Utils }
+import org.hatdex.hat.utils.{ AdjudicatorRequest, FutureTransformations, Utils }
 import org.hatdex.libs.dal.HATPostgresProfile.api._
 import org.joda.time.DateTime
-import play.api.{ Configuration, Logger }
 import play.api.cache.AsyncCacheApi
 import play.api.libs.json.{ JsObject, JsString }
 import play.api.libs.ws.WSClient
 import play.api.mvc.RequestHeader
-import org.hatdex.hat.utils.AdjudicatorRequest
-
-import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.util.Success
+import play.api.{ Configuration, Logger }
 
 class ApplicationStatusCheckService @Inject() (
     wsClient: WSClient

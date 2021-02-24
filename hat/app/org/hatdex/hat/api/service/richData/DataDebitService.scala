@@ -26,11 +26,14 @@ package org.hatdex.hat.api.service.richData
 
 import java.sql.SQLException
 import java.util.UUID
-
 import javax.inject.Inject
+
+import scala.concurrent.Future
+import scala.util.Success
+
 import akka.Done
-import org.hatdex.hat.api.json.RichDataJsonFormats
-import org.hatdex.hat.api.models._
+import io.dataswift.models.hat.json.RichDataJsonFormats
+import io.dataswift.models.hat._
 import org.hatdex.hat.api.service.{ RemoteExecutionContext, UsersService }
 import org.hatdex.hat.dal.ModelTranslation
 import org.hatdex.hat.dal.Tables.{ DataDebit => DbDataDebit, DataDebitPermissions => DbDataDebitPermissions, _ }
@@ -40,9 +43,6 @@ import org.hatdex.libs.dal.HATPostgresProfile.api._
 import org.joda.time.LocalDateTime
 import play.api.Logger
 import play.api.libs.json._
-
-import scala.concurrent.Future
-import scala.util.Success
 
 class DataDebitService @Inject() (
     usersService: UsersService

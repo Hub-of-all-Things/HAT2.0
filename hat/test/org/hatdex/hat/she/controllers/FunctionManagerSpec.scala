@@ -24,25 +24,24 @@
 
 package org.hatdex.hat.she.controllers
 
+import scala.concurrent.duration._
+import scala.concurrent.{ Await, Future }
+
 import akka.util
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.test._
-import org.hatdex.hat.api.models.{ EndpointQuery, ErrorMessage, SuccessResponse }
+import io.dataswift.test.common.BaseSpec
+import io.dataswift.models.hat.{ EndpointQuery, ErrorMessage, SuccessResponse }
 import org.hatdex.hat.api.service.richData.RichDataService
 import org.hatdex.hat.she.functions.DataFeedDirectMapperContext
 import org.hatdex.hat.she.models.FunctionConfiguration
 import org.hatdex.hat.she.service.FunctionService
 import org.joda.time.DateTimeUtils
+import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
 import play.api.Logger
 import play.api.mvc.Result
-import play.api.test.{ FakeRequest }
-
-import scala.concurrent.duration._
-import scala.concurrent.{ Await, Future }
-import io.dataswift.test.common.BaseSpec
-import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
-import play.api.test.Helpers
 import play.api.test.Helpers._
+import play.api.test.{ FakeRequest, Helpers }
 
 class FunctionManagerSpec
     extends BaseSpec
@@ -53,7 +52,7 @@ class FunctionManagerSpec
   import scala.concurrent.ExecutionContext.Implicits.global
   val logger = Logger(this.getClass)
 
-  import org.hatdex.hat.api.json.HatJsonFormats.{ errorMessage, successResponse }
+  import io.dataswift.models.hat.json.HatJsonFormats.{ errorMessage, successResponse }
   import org.hatdex.hat.she.models.FunctionConfigurationJsonProtocol._
 
   implicit def defaultAwaitTimeout: util.Timeout = 60.seconds

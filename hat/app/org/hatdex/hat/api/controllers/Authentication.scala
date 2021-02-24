@@ -25,34 +25,34 @@
 package org.hatdex.hat.api.controllers
 
 import java.net.{ URLDecoder, URLEncoder }
+import javax.inject.Inject
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 import akka.Done
-import javax.inject.Inject
-import io.circe.generic.auto._
-import io.circe.config.syntax._
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{ Credentials, PasswordHasherRegistry }
 import com.mohiva.play.silhouette.api.{ LoginEvent, Silhouette }
 import com.mohiva.play.silhouette.impl.exceptions.{ IdentityNotFoundException, InvalidPasswordException }
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import org.hatdex.hat.api.json.HatJsonFormats
-import org.hatdex.hat.api.models._
-import org.hatdex.hat.api.models.applications.ApplicationSetup
+import io.circe.config.syntax._
+import io.circe.generic.auto._
+import io.dataswift.models.hat.json.HatJsonFormats
+import io.dataswift.models.hat._
+import io.dataswift.models.hat.applications.ApplicationSetup
 import org.hatdex.hat.api.service.applications.ApplicationsService
 import org.hatdex.hat.api.service.{ HatServicesService, LogService, MailTokenService, UsersService }
 import org.hatdex.hat.authentication._
 import org.hatdex.hat.phata.models._
 import org.hatdex.hat.resourceManagement.{ HatServerProvider, _ }
 import org.hatdex.hat.utils.{ DataswiftServiceConfig, HatBodyParsers, HatMailer }
-import play.api.{ Configuration, Logger }
 import play.api.cache.{ Cached, CachedBuilder }
 import play.api.i18n.Lang
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.{ Action, _ }
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import play.api.{ Configuration, Logger }
 
 class Authentication @Inject() (
     components: ControllerComponents,

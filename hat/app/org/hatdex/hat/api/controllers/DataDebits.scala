@@ -25,10 +25,13 @@
 package org.hatdex.hat.api.controllers
 
 import javax.inject.Inject
+
+import scala.concurrent.{ ExecutionContext, Future }
+
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
-import org.hatdex.hat.api.json.RichDataJsonFormats
-import org.hatdex.hat.api.models._
+import io.dataswift.models.hat.json.RichDataJsonFormats
+import io.dataswift.models.hat._
 import org.hatdex.hat.api.service.applications.ApplicationsService
 import org.hatdex.hat.api.service.monitoring.HatDataEventDispatcher
 import org.hatdex.hat.api.service.richData._
@@ -36,8 +39,6 @@ import org.hatdex.hat.authentication.{ ContainsApplicationRole, HatApiAuthEnviro
 import org.hatdex.hat.utils.{ HatBodyParsers, LoggingProvider }
 import play.api.libs.json.Json
 import play.api.mvc._
-
-import scala.concurrent.{ ExecutionContext, Future }
 
 class DataDebits @Inject() (
     components: ControllerComponents,

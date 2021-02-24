@@ -24,11 +24,14 @@
 
 package org.hatdex.hat.she.controllers
 
+import javax.inject.Inject
+
+import scala.concurrent.{ ExecutionContext, Future }
+
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
-import javax.inject.Inject
-import org.hatdex.hat.api.json.RichDataJsonFormats
-import org.hatdex.hat.api.models._
+import io.dataswift.models.hat.json.RichDataJsonFormats
+import io.dataswift.models.hat._
 import org.hatdex.hat.api.service.applications.ApplicationsService
 import org.hatdex.hat.authentication.{ ContainsApplicationRole, HatApiAuthEnvironment, HatApiController, WithRole }
 import org.hatdex.hat.she.models.{ FunctionConfiguration, FunctionConfigurationJsonProtocol, FunctionStatus }
@@ -36,8 +39,6 @@ import org.hatdex.hat.she.service.{ FunctionExecutionTriggerHandler, FunctionSer
 import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
-
-import scala.concurrent.{ ExecutionContext, Future }
 
 class FunctionManager @Inject() (
     components: ControllerComponents,

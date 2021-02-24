@@ -24,10 +24,10 @@
 
 package org.hatdex.hat.she.service
 
+import scala.reflect.ClassTag
+
 import org.apache.commons.lang3.reflect.TypeUtils
 import org.hatdex.hat.she.models.FunctionExecutable
-
-import scala.reflect.ClassTag
 
 class FunctionExecutableRegistry(interfaces: Seq[FunctionExecutable]) {
 

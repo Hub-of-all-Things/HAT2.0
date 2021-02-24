@@ -26,16 +26,16 @@ package org.hatdex.hat.api.service.richData
 
 import javax.inject.Inject
 
-import org.hatdex.hat.api.json.RichDataJsonFormats
-import org.hatdex.hat.api.models._
+import scala.concurrent.Future
+
+import io.dataswift.models.hat.json.RichDataJsonFormats
+import io.dataswift.models.hat._
 import org.hatdex.hat.api.service.DalExecutionContext
 import org.hatdex.hat.dal.ModelTranslation
 import org.hatdex.hat.dal.Tables._
 import org.hatdex.libs.dal.HATPostgresProfile.api._
 import play.api.Logger
 import play.api.libs.json._
-
-import scala.concurrent.Future
 
 class RichBundleService @Inject() (implicit ec: DalExecutionContext) extends RichDataJsonFormats {
 

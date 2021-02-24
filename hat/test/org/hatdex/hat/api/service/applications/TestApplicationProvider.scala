@@ -24,14 +24,14 @@
 
 package org.hatdex.hat.api.service.applications
 
-import org.hatdex.hat.api.models.applications.Application
-
 import scala.concurrent.{ ExecutionContext, Future }
 
-class TestApplicationProvider(apps: Seq[Application])(implicit ec: ExecutionContext) extends TrustedApplicationProvider {
-  def application(id: String): Future[Option[Application]] = {
+import io.dataswift.models.hat.applications.Application
+
+class TestApplicationProvider(apps: Seq[Application])(implicit ec: ExecutionContext)
+    extends TrustedApplicationProvider {
+  def application(id: String): Future[Option[Application]] =
     applications.map(_.find(_.id == id))
-  }
 
   def applications: Future[Seq[Application]] = Future.successful(apps)
 }

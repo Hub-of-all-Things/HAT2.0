@@ -24,20 +24,21 @@
 
 package org.hatdex.hat.she.service
 
+import javax.inject.Inject
+
+import scala.concurrent.duration.{ FiniteDuration }
+import scala.concurrent.{ ExecutionContext, Future }
+
 import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
 import akka.stream.scaladsl.{ Flow, Sink, Source }
 import akka.stream.{ ActorMaterializer, OverflowStrategy }
 import akka.{ Done, NotUsed }
-import javax.inject.Inject
 import org.hatdex.hat.api.service.monitoring.HatDataEventBus
 import org.hatdex.hat.api.service.monitoring.HatDataEventBus.DataCreatedEvent
 import org.hatdex.hat.resourceManagement.{ HatServerDiscoveryException, HatServerProvider }
 import org.hatdex.hat.she.models._
 import org.joda.time.DateTime
 import play.api.{ Configuration, Logger }
-
-import scala.concurrent.duration.{ FiniteDuration }
-import scala.concurrent.{ ExecutionContext, Future }
 
 class FunctionTriggerLogger extends Actor {
   private val logger: Logger = Logger(this.getClass)
@@ -70,51 +71,50 @@ class FunctionExecutionTriggerHandler @Inject() (
             .all(active = true)(hatServer.db)
             .map(
               _.filter({
-                  case FunctionConfiguration(_,
-                                             _,
-                                             _,
-                                             FunctionTrigger.TriggerPeriodic(period),
-                                             _,
-                                             FunctionStatus(true, true, Some(lastExecution), None)
-                      ) if lastExecution.isBefore(DateTime.now().minus(period)) =>
-                    true
-                  case FunctionConfiguration(_,
-                                             _,
-                                             _,
-                                             FunctionTrigger.TriggerPeriodic(period),
-                                             _,
-                                             FunctionStatus(true, true, Some(lastExecution), Some(started))
-                      )
-                      if lastExecution.isBefore(DateTime.now().minus(period)) && started
-                          .isBefore(DateTime.now().minus(functionExecutionTimeout.toMillis)) =>
-                    true
-                  case FunctionConfiguration(_,
-                                             _,
-                                             _,
-                                             FunctionTrigger.TriggerPeriodic(_),
-                                             _,
-                                             FunctionStatus(true, true, None, None)
-                      ) =>
-                    true // no execution recoded yet
-                  case FunctionConfiguration(_,
-                                             _,
-                                             _,
-                                             FunctionTrigger.TriggerPeriodic(_),
-                                             _,
-                                             FunctionStatus(true, true, None, Some(started))
-                      ) if started.isBefore(DateTime.now().minus(functionExecutionTimeout.toMillis)) =>
-                    true // no successful execution, current one timed out
-                  case FunctionConfiguration(_,
-                                             _,
-                                             _,
-                                             FunctionTrigger.TriggerIndividual(),
-                                             _,
-                                             FunctionStatus(true, true, _, _)
-                      ) =>
-                    true
-                  case _ => false // in all other cases, do not trigger
-                }
-              )
+                case FunctionConfiguration(_,
+                                           _,
+                                           _,
+                                           FunctionTrigger.TriggerPeriodic(period),
+                                           _,
+                                           FunctionStatus(true, true, Some(lastExecution), None)
+                    ) if lastExecution.isBefore(DateTime.now().minus(period)) =>
+                  true
+                case FunctionConfiguration(_,
+                                           _,
+                                           _,
+                                           FunctionTrigger.TriggerPeriodic(period),
+                                           _,
+                                           FunctionStatus(true, true, Some(lastExecution), Some(started))
+                    )
+                    if lastExecution.isBefore(DateTime.now().minus(period)) && started
+                        .isBefore(DateTime.now().minus(functionExecutionTimeout.toMillis)) =>
+                  true
+                case FunctionConfiguration(_,
+                                           _,
+                                           _,
+                                           FunctionTrigger.TriggerPeriodic(_),
+                                           _,
+                                           FunctionStatus(true, true, None, None)
+                    ) =>
+                  true // no execution recoded yet
+                case FunctionConfiguration(_,
+                                           _,
+                                           _,
+                                           FunctionTrigger.TriggerPeriodic(_),
+                                           _,
+                                           FunctionStatus(true, true, None, Some(started))
+                    ) if started.isBefore(DateTime.now().minus(functionExecutionTimeout.toMillis)) =>
+                  true // no successful execution, current one timed out
+                case FunctionConfiguration(_,
+                                           _,
+                                           _,
+                                           FunctionTrigger.TriggerIndividual(),
+                                           _,
+                                           FunctionStatus(true, true, _, _)
+                    ) =>
+                  true
+                case _ => false // in all other cases, do not trigger
+              })
                 .filter(
                   _.dataBundle.flatEndpointQueries
                     .map(_.endpoint)

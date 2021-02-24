@@ -32,6 +32,8 @@ lazy val hat = project
           Library.Play.Jwt.atlassianJwtCore,
           Library.Play.Jwt.bouncyCastlePkix,
           Library.HATDeX.hatClient,
+          Library.Backend.dexPlay,
+          Library.Backend.hatPlay,
           Library.HATDeX.dexClient,
           Library.HATDeX.codegen,
           Library.Utils.pegdown,
