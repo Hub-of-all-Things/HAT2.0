@@ -54,8 +54,7 @@ class ErrorHandler @Inject() (
     with I18nSupport
     with ContentTypes
     with RequestExtractors
-    with Rendering
-    with Logging {
+    with Rendering {
 
   /**
     * Exception handler which chains the exceptions handlers from the sub types.
@@ -168,7 +167,7 @@ class ErrorHandler @Inject() (
       exception
     )
 
-    logger.error(s"Server Error ${usefulException.id}", usefulException)
+    Logger.error(s"Server Error ${usefulException.id}", usefulException)
 
     hatMailer.serverErrorNotify(request, usefulException)
 

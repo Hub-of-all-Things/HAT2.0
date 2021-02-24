@@ -56,7 +56,7 @@ class HatDataStatsProcessorSpec
     val service = application.injector.instanceOf[HatDataStatsProcessor]
     val stats   = service.computeInboundStats(simpleDataCreatedEvent)
 
-    logger.debug(s"Got back stats: ${Json.prettyPrint(Json.toJson(stats))}")
+    logger.debug(s"Got back stats: ${Json.prettyPrint(Json.toJson(stats)(dataStatsFormat))}")
 
     stats.logEntry must equal("test item")
     stats.statsType must equal("inbound")

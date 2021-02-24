@@ -181,7 +181,7 @@ class FileMetadataService @Inject() (implicit val ec: DalExecutionContext) {
       _ <- HatFile
              .filter(_.id === fileId)
              .map(v => (v.status, v.lastUpdated))
-             .update((Json.toJson(HatFileStatus.Deleted()), LocalDateTime.now()))
+             .update((Json.toJson(HatFileStatus.Deleted())(apiHatFileStatusFormat), LocalDateTime.now()))
       updatedFile <- HatFile.filter(_.id === fileId).result
     } yield updatedFile
     db.run(query).map(updated => ModelTranslation.fromDbModel(updated.head))

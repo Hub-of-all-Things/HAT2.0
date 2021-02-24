@@ -15,6 +15,7 @@ lazy val hat = project
   .enablePlugins(BasicSettings)
   .settings(
     libraryDependencies ++= Seq(
+          cacheApi,
           Library.Play.ws,
           filters,
           ehcache,
@@ -40,7 +41,7 @@ lazy val hat = project
           Library.Utils.awsJavaS3Sdk,
           Library.Utils.prettyTime,
           Library.Utils.nbvcxz,
-          Library.Utils.playMemcached,
+          //Library.Utils.playMemcached,
           Library.Utils.elasticacheClusterClient,
           Library.Utils.alpakkaAwsLambda,
           Library.scalaGuice,
