@@ -57,8 +57,8 @@ object Dependencies {
       val jdbc        = "com.typesafe.play" %% "play-jdbc"         % version
       val json        = "com.typesafe.play" %% "play-json"         % "2.9.1"
       val jsonJoda    = "com.typesafe.play" %% "play-json-joda"    % "2.9.1"
-      val mailer      = "com.typesafe.play" %% "play-mailer"       % "6.0.1"
-      val mailerGuice = "com.typesafe.play" %% "play-mailer-guice" % "6.0.1"
+      val mailer      = "com.typesafe.play" %% "play-mailer"       % "8.0.1"
+      val mailerGuice = "com.typesafe.play" %% "play-mailer-guice" % "8.0.1"
 
       val htmlCompressor = "com.mohiva"          %% "play-html-compressor" % "0.6.3"
       val playGuard      = "com.digitaltangible" %% "play-guard"           % "2.2.0"
@@ -72,7 +72,7 @@ object Dependencies {
       }
 
       object Silhouette {
-        val version           = "5.1.4"
+        val version           = "7.0.0"
         val passwordBcrypt    = "com.mohiva" %% "play-silhouette-password-bcrypt" % version
         val persistence       = "com.mohiva" %% "play-silhouette-persistence"     % version
         val cryptoJca         = "com.mohiva" %% "play-silhouette-crypto-jca"      % version
