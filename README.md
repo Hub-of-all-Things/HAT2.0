@@ -17,7 +17,6 @@ A Personal Microserver (“the HAT”) is a personal single tenant (“the indiv
 
 The HAT enables individuals to share the correct information (quality and quantity), with the correct people, in the correct situations for the correct purposes and to gain the benefits.
 
-
 ## Technology stack
 
 This HAT Microserver implementation is written in Scala (2.12.11) uses the following technology stack:
